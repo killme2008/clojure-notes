@@ -22,18 +22,27 @@ final static private Var LEGACY_REPL = RT.var("clojure.main", "legacy-repl");
 final static private Var LEGACY_SCRIPT = RT.var("clojure.main", "legacy-script");
 final static private Var MAIN = RT.var("clojure.main", "main");
 
+// 兼容1.3之前老的 clojure.lang.Repl
 public static void legacy_repl(String[] args) {
     REQUIRE.invoke(CLOJURE_MAIN);
     LEGACY_REPL.invoke(RT.seq(args));
 }
 
+//兼容1.3之前的 clojure.lang.Script 
 public static void legacy_script(String[] args) {
     REQUIRE.invoke(CLOJURE_MAIN);
     LEGACY_SCRIPT.invoke(RT.seq(args));
 }
 
+/**
+ * Clojure 启动入口
+ * @param args
+ */
 public static void main(String[] args) {
+	//通过 clojure.core/require 来调用 clojure.main(.clj) 
     REQUIRE.invoke(CLOJURE_MAIN);
+    // 调用 clojure.main/main 函数启动 clojure，并传入参数
+    // 进一步注释请看 clojure/main.clj
     MAIN.applyTo(RT.seq(args));
 }
 }

@@ -2727,6 +2727,9 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
 	}
 }
 
+/**
+ * 为了美化错误堆栈，需要具体见 clojure/main.clj 中 demunge 函数的注释
+ */
 static final public IPersistentMap CHAR_MAP =
 		PersistentHashMap.create('-', "_",
 //		                         '.', "_DOT_",
@@ -2794,7 +2797,10 @@ static {
 		sb.append(escapeStr);
 		sb.append("\\E");
 		}
+	//编译生成一个超级正则表达式来做匹配
+	//\Q_SINGLEQUOTE_\E|\Q_DOUBLEQUOTE_\E|\Q_AMPERSAND_\E|\Q_PERCENT_\E|\Q_RBRACE_\E|\Q_BSLASH_\E|\Q_LBRACE_\E|\Q_LBRACK_\E|\Q_RBRACK_\E|\Q_COLON_\E|\Q_QMARK_\E|\Q_SLASH_\E|\Q_SHARP_\E|\Q_TILDE_\E|\Q_CIRCA_\E|\Q_CARET_\E|\Q_BANG_\E|\Q_PLUS_\E|\Q_STAR_\E|\Q_BAR_\E|\Q_EQ_\E|\Q_GT_\E|\Q_LT_\E|\Q_\E|\Q$\E
 	DEMUNGE_PATTERN = Pattern.compile(sb.toString());
+	System.out.println(DEMUNGE_PATTERN);
 }
 
 static public String munge(String name){
@@ -2810,6 +2816,11 @@ static public String munge(String name){
 	return sb.toString();
 }
 
+/**
+ * 美化函数名称，在 clojure/main.clj 和 clojure/repl.clj 的 demunge 方法用到。
+ * @param mungedName
+ * @return
+ */
 static public String demunge(String mungedName){
 	StringBuilder sb = new StringBuilder();
 	Matcher m = DEMUNGE_PATTERN.matcher(mungedName);
@@ -2819,14 +2830,17 @@ static public String demunge(String mungedName){
 		int start = m.start();
 		int end = m.end();
 		// Keep everything before the match
+		// 截取特殊符号
 		sb.append(mungedName.substring(lastMatchEnd, start));
 		lastMatchEnd = end;
 		// Replace the match with DEMUNGE_MAP result
+		// 替换匹配的特殊符号
 		Character origCh = (Character) DEMUNGE_MAP.valAt(m.group());
 		sb.append(origCh);
 		}
 	// Keep everything after the last match
 	sb.append(mungedName.substring(lastMatchEnd));
+	//返回美化后的名称。
 	return sb.toString();
 }
 
