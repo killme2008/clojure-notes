@@ -41,6 +41,7 @@ static final Symbol DEF = Symbol.intern("def");
 static final Symbol LOOP = Symbol.intern("loop*");
 static final Symbol RECUR = Symbol.intern("recur");
 static final Symbol IF = Symbol.intern("if");
+//let 是 let* 的包装
 static final Symbol LET = Symbol.intern("let*");
 static final Symbol LETFN = Symbol.intern("letfn*");
 static final Symbol DO = Symbol.intern("do");
@@ -100,6 +101,7 @@ static final Symbol IN_NS = Symbol.intern("in-ns");
 
 //static final Symbol IFN = Symbol.intern("clojure.lang", "IFn");
 
+//所有的 specila form 都在这里定义了。,可以看到 clojure 的核心 form 是多么少。
 static final public IPersistentMap specials = PersistentHashMap.create(
 		DEF, new DefExpr.Parser(),
 		LOOP, new LetExpr.Parser(),

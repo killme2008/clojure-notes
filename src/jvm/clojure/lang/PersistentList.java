@@ -19,12 +19,18 @@ private final Object _first;
 private final IPersistentList _rest;
 private final int _count;
 
+/**
+ * 创建 PersistentList 的函数。在 clojure.core/list 中应用到
+ */
 public static IFn creator = new RestFn(){
+	//返回函数必须需要的参数个数
 	final public int getRequiredArity(){
+		//可变参数，返回 0，没有必须的
 		return 0;
 	}
 
 	final protected Object doInvoke(Object args) {
+		//如果是 ArraySeq，特殊处理遍历，利用 cons 添加到结果 list
 		if(args instanceof ArraySeq)
 			{
 			Object[] argsarray = ((ArraySeq) args).array;
@@ -33,9 +39,11 @@ public static IFn creator = new RestFn(){
 				ret = (IPersistentList) ret.cons(argsarray[i]);
 			return ret;
 			}
+		//其他，这调用 seq 函数转成 seq，然后收集到 LinkedList
 		LinkedList list = new LinkedList();
 		for(ISeq s = RT.seq(args); s != null; s = s.next())
 			list.add(s.first());
+		//再创建
 		return create(list);
 	}
 
@@ -64,7 +72,13 @@ PersistentList(IPersistentMap meta, Object _first, IPersistentList _rest, int _c
 	this._count = _count;
 }
 
+/**
+ * 基于 java.util.List 创建 list
+ * @param init
+ * @return
+ */
 public static IPersistentList create(List init){
+	//创建list，再反序遍历 list ，然后 cons，这里效率是不是有点低？其实可以在 seq 的时候直接创建啊。
 	IPersistentList ret = EMPTY;
 	for(ListIterator i = init.listIterator(init.size()); i.hasPrevious();)
 		{
