@@ -7089,6 +7089,7 @@ private static Symbol tagOf(Object o){
 	return null;
 }
 
+//加载clojure script并执行
 public static Object loadFile(String file) throws IOException{
 //	File fo = new File(file);
 //	if(!fo.exists())
@@ -7097,6 +7098,7 @@ public static Object loadFile(String file) throws IOException{
 	FileInputStream f = new FileInputStream(file);
 	try
 		{
+		//可以看到，默认都认为是 UTF-8编码
 		return load(new InputStreamReader(f, RT.UTF8), new File(file).getAbsolutePath(), (new File(file)).getName());
 		}
 	finally

@@ -17,6 +17,7 @@
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
   )
 
+;;此处先声明，后续才定义这个入口函数
 (declare main)
 
 ;;;;;;;;;;;;;;;;;;; redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
@@ -172,7 +173,7 @@
                     (when-not (instance? clojure.lang.Compiler$CompilerException ex)
                       (str " " (if el (stack-element-str el) "[trace missing]"))))))))
 
-;;默认加载的 lib 列表
+;;REPL 默认加载的 lib 列表
 (def ^{:doc "A sequence of lib specs that are applied to `require`
 by default when a new command-line REPL is started."} repl-requires
   '[[clojure.repl :refer (source apropos dir pst doc find-doc)]
@@ -235,35 +236,44 @@ by default when a new command-line REPL is started."} repl-requires
        read, eval, or print throws an exception or error
        default: repl-caught"
   [& options]
+  ;;包装当前线程的 context class loader 为  clojure.lang.DynamicClassLoader
+  ;;Clojure 编译器动态生成的类都是通过 clojure.lang.DynamicClassLoader 定义和加载的
+  ;; 这里是为了让当前线程可以加载到 clojure 的类库
   (let [cl (.getContextClassLoader (Thread/currentThread))]
     (.setContextClassLoader (Thread/currentThread) (clojure.lang.DynamicClassLoader. cl)))
   (let [{:keys [init need-prompt prompt flush read eval print caught]
          :or {init        #()
               need-prompt (if (instance? LineNumberingPushbackReader *in*)
                             #(.atLineStart ^LineNumberingPushbackReader *in*)
-                            #(identity true))
-              prompt      repl-prompt
-              flush       flush
-              read        repl-read
-              eval        eval
-              print       prn
-              caught      repl-caught}}
+                            #(identity true)) ;;用于判断是否需要打印提示的谓词函数
+              prompt      repl-prompt  ;;打印提示函数，默认就是前面的 repl-prompt
+              flush       flush  ;;缓冲区刷新函数
+              read        repl-read  ;;读取函数
+              eval        eval   ;;求值函数
+              print       prn    ;;打印函数
+              caught      repl-caught}}  ;;异常捕获函数，默认就是前面的 repl-caught，返回root cause
+        ;;执行初始化选项函数
         (apply hash-map options)
-        request-prompt (Object.)
-        request-exit (Object.)
+        request-prompt (Object.)  ;;标示对象，表示要打印提示了
+        request-exit (Object.)    ;;标示exit的对象
         read-eval-print
         (fn []
           (try
             (let [read-eval *read-eval*
                   input (with-read-known (read request-prompt request-exit))]
+              ;;利用 or 的短路特性，要么打印提示或者退出，要么读取某个值，并eval
              (or (#{request-prompt request-exit} input)
                  (let [value (binding [*read-eval* read-eval] (eval input))]
+                   ;;打印求值结果
                    (print value)
+                   ;;设置 *3 *2 *1 对象，表示上次、上上次，上上上次求值结果
                    (set! *3 *2)
                    (set! *2 *1)
                    (set! *1 value))))
            (catch Throwable e
+             ;;执行 caught 函数，默认是repl-caught，返回root cause
              (caught e)
+             ;;如果有异常，设置 *e
              (set! *e e))))]
     (with-bindings
      (try
@@ -273,16 +283,19 @@ by default when a new command-line REPL is started."} repl-requires
         (set! *e e)))
      (prompt)
      (flush)
+      ;;read eval print 循环，通过loop实现
      (loop []
        (when-not
+         ;;返回值不是 request-exit 就重复循环
        	 (try (identical? (read-eval-print) request-exit)
-	  (catch Throwable e
-	   (caught e)
-	   (set! *e e)
-	   nil))
+	            (catch Throwable e
+        	   (caught e)
+        	   (set! *e e)
+        	   nil))
          (when (need-prompt)
            (prompt)
            (flush))
+         ;;回到 loop 位置，再次循环
          (recur))))))
 
 ;; 执行传入的clojure脚本
@@ -297,6 +310,7 @@ by default when a new command-line REPL is started."} repl-requires
      (.substring path (if (.startsWith path "@/") 2 1)))
     (Compiler/loadFile path)))
 
+;;加载 -i 选项的 clojure 脚本
 (defn- init-opt
   "Load a script"
   [path]
@@ -356,11 +370,14 @@ by default when a new command-line REPL is started."} repl-requires
   ;; 没有 -e 执行代码，直接打印 clojure 版本号
   (when-not (some #(= eval-opt (init-dispatch (first %))) inits)
     (println "Clojure" (clojure-version)))
-  ;; 启动REPL
+  ;; 启动REPL，传入 init 函数，这个函数就做两个事情
+  ;; 1. 执行初始选项 -i 和 -e（如果有的话）
+  ;; 2. 自动 require repl需要加载的类库
   (repl :init (fn []
                 (initialize args inits)
                 (apply require repl-requires)))
   (prn)
+  ;;退出 repl 循环，退出 JVM
   (System/exit 0))
 
 ;;执行脚本，注意到 "-" 表示标准输入，遵循 unix 传统
