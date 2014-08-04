@@ -657,6 +657,7 @@ static Object getFrom(Object coll, Object key){
 		IPersistentSet set = (IPersistentSet) coll;
 		return set.get(key);
 	}
+	//这里有点意思，如果目标对象是字符串或者数组，转成 index 操作获取
 	else if(key instanceof Number && (coll instanceof String || coll.getClass().isArray())) {
 		int n = ((Number) key).intValue();
 		if(n >= 0 && n < count(coll))

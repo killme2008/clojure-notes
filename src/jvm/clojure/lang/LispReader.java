@@ -35,9 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/**
+ * 在学习 sicp 的时候写过 scheme 解释器，最核心的就两个函数： analyse 和 eval。这里的 LispReader 就扮演 analyse 的角色。
+ * 我过去用 clojure 写过 scheme 解释器：https://github.com/killme2008/cscheme
+ **/
 public class LispReader{
 
+//预定义一些 symbol，将在读取过程中用到
 static final Symbol QUOTE = Symbol.intern("quote");
 static final Symbol THE_VAR = Symbol.intern("var");
 //static Symbol SYNTAX_QUOTE = Symbol.intern(null, "syntax-quote");

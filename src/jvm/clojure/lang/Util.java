@@ -156,6 +156,7 @@ static public int compare(Object k1, Object k2){
 }
 
 static public int hash(Object o){
+	//null固定为0，否则取 Object#hashCode
 	if(o == null)
 		return 0;
 	return o.hashCode();
@@ -177,6 +178,14 @@ private static int dohasheq(IHashEq o) {
 	return o.hasheq();
 }
 
+/**
+ * 来自 cpp boost 库的 boost::hash_combine
+ * 0x9e3779b9 是黄金分割比例的倒数 "2^32/1.618"
+ * http://stackoverflow.com/questions/4948780/magic-number-in-boosthash-combine
+ * @param seed
+ * @param hash
+ * @return
+ */
 static public int hashCombine(int seed, int hash){
 	//a la boost
 	seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
