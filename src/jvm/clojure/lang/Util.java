@@ -211,6 +211,11 @@ static public ISeq ret1(ISeq ret, Object nil){
 		return ret;
 }
 
+/**
+ * 清除缓存中过期的软引用或者弱应用，在Keyword和DynamicClassLoader中用到了。两者都做了缓存。
+ * @param rq
+ * @param cache
+ */
 static public <K,V> void clearCache(ReferenceQueue rq, ConcurrentHashMap<K, Reference<V>> cache){
 		//cleanup any dead entries
 	if(rq.poll() != null)

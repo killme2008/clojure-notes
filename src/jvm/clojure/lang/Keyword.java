@@ -32,6 +32,7 @@ String _str;
 public static Keyword intern(Symbol sym){
 	if(sym.meta() != null)
 		sym = (Symbol) sym.withMeta(null);
+	//清除缓存，weak reference 可能已经被回收了。
 	Util.clearCache(rq, table);
 	Keyword k = new Keyword(sym);
 	Reference<Keyword> existingRef = table.putIfAbsent(sym, new WeakReference<Keyword>(k,rq));
