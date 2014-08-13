@@ -22,8 +22,13 @@ import java.lang.ref.SoftReference;
 
 
 public class Keyword implements IFn, Comparable, Named, Serializable, IHashEq {
-
+/**
+ * keyword 弱引用缓存
+ */
 private static ConcurrentHashMap<Symbol, Reference<Keyword>> table = new ConcurrentHashMap();
+/**
+ * 弱引用监听队列，当队列中有值的时候表示已经有一些缓存项目被回收，需要清理缓存
+ */
 static final ReferenceQueue rq = new ReferenceQueue();
 public final Symbol sym;
 final int hasheq;
@@ -43,6 +48,7 @@ public static Keyword intern(Symbol sym){
 		return existingk;
 	//entry died in the interim, do over
 	table.remove(sym, existingRef);
+	//如果弱引用已经被回收，重新尝试 intern。这里用递归的方式，其实可以改成 for 循环，我尝试提了个ticket
 	return intern(sym);
 }
 
@@ -123,6 +129,9 @@ private Object readResolve() throws ObjectStreamException{
 	return intern(sym);
 }
 
+/**
+ * keywrod 同时是函数，可以传入 map ，用于查找，或者第二个参数 not-found，当没有找到的时候返回。
+ */
 /**
  * Indexer implements IFn for attr access
  *

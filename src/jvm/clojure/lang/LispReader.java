@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
 /**
  * 在学习 sicp 的时候写过 scheme 解释器，最核心的就两个函数： analyse 和 eval。这里的 LispReader 就扮演 analyse 的角色。
  * 我过去用 clojure 写过 scheme 解释器：https://github.com/killme2008/cscheme
+ * 
+ * reader 读取类型的完全定义 http://clojure.org/reader
  **/
 public class LispReader{
 
@@ -45,6 +47,7 @@ public class LispReader{
 static final Symbol QUOTE = Symbol.intern("quote");
 static final Symbol THE_VAR = Symbol.intern("var");
 //static Symbol SYNTAX_QUOTE = Symbol.intern(null, "syntax-quote");
+//指向clojure.core 中的部分读取过程中要用到的 symbol
 static Symbol UNQUOTE = Symbol.intern("clojure.core", "unquote");
 static Symbol UNQUOTE_SPLICING = Symbol.intern("clojure.core", "unquote-splicing");
 static Symbol CONCAT = Symbol.intern("clojure.core", "concat");
@@ -57,19 +60,26 @@ static Symbol VECTOR = Symbol.intern("clojure.core", "vector");
 static Symbol WITH_META = Symbol.intern("clojure.core", "with-meta");
 static Symbol META = Symbol.intern("clojure.core", "meta");
 static Symbol DEREF = Symbol.intern("clojure.core", "deref");
+//特指 *read-eval* 的 :unknown 值
 static Keyword UNKNOWN = Keyword.intern(null, "unknown");
 //static Symbol DEREF_BANG = Symbol.intern("clojure.core", "deref!");
 
+//特殊宏字符到 Reader 函数的映射，具体见下文 static 块
 static IFn[] macros = new IFn[256];
+// #开始的 dispatch 宏，具体见下文 static 块
 static IFn[] dispatchMacros = new IFn[256];
 //static Pattern symbolPat = Pattern.compile("[:]?([\\D&&[^:/]][^:/]*/)?[\\D&&[^:/]][^:/]*");
+//symbol的正则表达式，注意 . 或者 : 前后开始或者结尾的都是 clojure 内部保留
 static Pattern symbolPat = Pattern.compile("[:]?([\\D&&[^/]].*/)?(/|[\\D&&[^/]][^/]*)");
 //static Pattern varPat = Pattern.compile("([\\D&&[^:\\.]][^:\\.]*):([\\D&&[^:\\.]][^:\\.]*)");
 //static Pattern intPat = Pattern.compile("[-+]?[0-9]+\\.?");
+//整数的正则表达式,注意结尾的 N，表示BigInt 2r1010 表示以2基数的二进制数，基数从 0 - 36
 static Pattern intPat =
 		Pattern.compile(
 				"([-+]?)(?:(0)|([1-9][0-9]*)|0[xX]([0-9A-Fa-f]+)|0([0-7]+)|([1-9][0-9]?)[rR]([0-9A-Za-z]+)|0[0-9]+)(N)?");
+//分数的正则表达式
 static Pattern ratioPat = Pattern.compile("([-+]?[0-9]+)/([0-9]+)");
+//浮点数的正则表达式,注意 M 结尾表示 BigDecimals
 static Pattern floatPat = Pattern.compile("([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)(M)?");
 //static Pattern accessorPat = Pattern.compile("\\.[a-zA-Z_]\\w*");
 //static Pattern instanceMemberPat = Pattern.compile("\\.([a-zA-Z_][\\w\\.]*)\\.([a-zA-Z_]\\w*)");
@@ -77,47 +87,61 @@ static Pattern floatPat = Pattern.compile("([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-
 //static Pattern classNamePat = Pattern.compile("([a-zA-Z_][\\w\\.]*)\\.");
 
 //symbol->gensymbol
+// gensym 映射的 binding 的 key 值
 static Var GENSYM_ENV = Var.create(null).setDynamic();
 //sorted-map num->gensymbol
+//处理匿名参数列表的 binding 的 key 值，例如 #(println % %1 %2)中的 %, %1, %2
 static Var ARG_ENV = Var.create(null).setDynamic();
+//构造器 reader，例如 (java.util.Date.)
 static IFn ctorReader = new CtorReader();
 
 static
 	{
-	macros['"'] = new StringReader();
-	macros[';'] = new CommentReader();
-	macros['\''] = new WrappingReader(QUOTE);
-	macros['@'] = new WrappingReader(DEREF);//new DerefReader();
-	macros['^'] = new MetaReader();
-	macros['`'] = new SyntaxQuoteReader();
-	macros['~'] = new UnquoteReader();
-	macros['('] = new ListReader();
-	macros[')'] = new UnmatchedDelimiterReader();
-	macros['['] = new VectorReader();
-	macros[']'] = new UnmatchedDelimiterReader();
-	macros['{'] = new MapReader();
-	macros['}'] = new UnmatchedDelimiterReader();
+	//注册各种宏符号对应的 reader
+	macros['"'] = new StringReader();  // " 开头的使用字符串Reader
+	macros[';'] = new CommentReader();  // 注释
+	macros['\''] = new WrappingReader(QUOTE); // quote 
+	macros['@'] = new WrappingReader(DEREF);// deref
+	macros['^'] = new MetaReader();   //元数据
+	macros['`'] = new SyntaxQuoteReader(); // syntax quote
+	macros['~'] = new UnquoteReader();   // unquote
+	macros['('] = new ListReader();      //list 
+	macros[')'] = new UnmatchedDelimiterReader();  //括号不匹配
+	macros['['] = new VectorReader();   //vector
+	macros[']'] = new UnmatchedDelimiterReader();  // 中括号不匹配
+	macros['{'] = new MapReader();     // map
+	macros['}'] = new UnmatchedDelimiterReader();  // 大括号不匹配
 //	macros['|'] = new ArgVectorReader();
-	macros['\\'] = new CharacterReader();
-	macros['%'] = new ArgReader();
-	macros['#'] = new DispatchReader();
+	macros['\\'] = new CharacterReader();   //字符，如\a
+	macros['%'] = new ArgReader();   // 匿名函数便捷记法里的参数，如%, %1
+	macros['#'] = new DispatchReader();  // #开头的dispatch宏
 
 
-	dispatchMacros['^'] = new MetaReader();
-	dispatchMacros['\''] = new VarReader();
-	dispatchMacros['"'] = new RegexReader();
-	dispatchMacros['('] = new FnReader();
-	dispatchMacros['{'] = new SetReader();
-	dispatchMacros['='] = new EvalReader();
-	dispatchMacros['!'] = new CommentReader();
-	dispatchMacros['<'] = new UnreadableReader();
-	dispatchMacros['_'] = new DiscardReader();
+	//dispatch宏到reader的映射
+	dispatchMacros['^'] = new MetaReader();  //元数据，老的形式 #^
+	dispatchMacros['\''] = new VarReader();   //读取var，#'a，所谓var-quote
+	dispatchMacros['"'] = new RegexReader();  //正则，#"[a-b]"
+	dispatchMacros['('] = new FnReader();    //匿名函数快速记法 #(println 3)
+	dispatchMacros['{'] = new SetReader();   // #{1} 集合
+	dispatchMacros['='] = new EvalReader();  // eval reader，支持 var 和 list的eval
+	dispatchMacros['!'] = new CommentReader();  //注释宏, #!开头的行将被忽略
+	dispatchMacros['<'] = new UnreadableReader();   // #< 不可读
+	dispatchMacros['_'] = new DiscardReader();   //#_ 丢弃
 	}
-
+/**
+ * 空格和逗号都被当成“空格”忽略。
+ * @param ch
+ * @return
+ */
 static boolean isWhitespace(int ch){
 	return Character.isWhitespace(ch) || ch == ',';
 }
 
+/**
+ * 回退一个字符
+ * @param r
+ * @param ch
+ */
 static void unread(PushbackReader r, int ch) {
 	if(ch != -1)
 		try
@@ -130,6 +154,11 @@ static void unread(PushbackReader r, int ch) {
 			}
 }
 
+/**
+ * Reader读取过程中抛出的异常，包括行号和列号，通过PushbackReader得到
+ * @author dennis
+ *
+ */
 public static class ReaderException extends RuntimeException{
 	final int line;
 	final int column;
@@ -140,7 +169,11 @@ public static class ReaderException extends RuntimeException{
 		this.column = column;
 	}
 }
-
+/**
+ * 读取一个字符串
+ * @param r
+ * @return
+ */
 static public int read1(Reader r){
 	try
 		{
@@ -152,71 +185,102 @@ static public int read1(Reader r){
 		}
 }
 
+/**
+ * LispReader 入口，从这里读出一个一个 object
+ * @param r 读取的io reader
+ * @param eofIsError  如果读取到末尾，是否抛出异常
+ * @param eofValue  到达末尾返回的值，如果eofIsError，忽略此参数，直接抛出异常
+ * @param isRecursive  是否是递归调用
+ * @return 返回一个'object'
+ */
 static public Object read(PushbackReader r, boolean eofIsError, Object eofValue, boolean isRecursive)
 {
+	//当 *read-eval* 是 unknown 的时候，抛出异常
 	if(RT.READEVAL.deref() == UNKNOWN)
 		throw Util.runtimeException("Reading disallowed - *read-eval* bound to :unknown");
 
 	try
 		{
+		//嗯，任何一个 analyzer 都是一个 while 循环
 		for(; ;)
 			{
+			//1.读取一个字符
 			int ch = read1(r);
 
+			//2.忽略“空白”
 			while(isWhitespace(ch))
 				ch = read1(r);
-
+			//3.如果到达结尾
 			if(ch == -1)
 				{
+				//3.1 如果eofIsError为true，直接抛出异常
 				if(eofIsError)
 					throw Util.runtimeException("EOF while reading");
+				//3.2 否则返回 eofValue
 				return eofValue;
 				}
-
+			//4.如果是数字
 			if(Character.isDigit(ch))
 				{
+				//尝试读取数字，塞入初始字符ch
 				Object n = readNumber(r, (char) ch);
+				//注重 suppress-read 选项，目前写死为 false
+				//http://dev.clojure.org/jira/browse/TRDR-14
+				//下面的读取都有这个处理，不再重复注释
 				if(RT.suppressRead())
 					return null;
 				return n;
 				}
-
+			//5.如果是 macro 字符，从 macros table尝试找一个 reader
 			IFn macroFn = getMacro(ch);
+			//5.1如果 reader存在，使用 reader 读取
 			if(macroFn != null)
 				{
+				//调用 reader fn
 				Object ret = macroFn.invoke(r, (char) ch);
 				if(RT.suppressRead())
 					return null;
 				//no op macros return the reader
+				//小约定，如果返回的是 reader，那么继续读，所谓no op reader
 				if(ret == r)
 					continue;
 				return ret;
 				}
-
+			//6.如果是加减符号
 			if(ch == '+' || ch == '-')
 				{
+				//预读一个字符
 				int ch2 = read1(r);
+				//6.1 如果加减符号后面接着数字，也就是正负数 +3, -2 等
 				if(Character.isDigit(ch2))
 					{
+					//将 ch2 塞回去
 					unread(r, ch2);
+					//尝试读取数字，传入初始字符ch
 					Object n = readNumber(r, (char) ch);
 					if(RT.suppressRead())
 						return null;
+					//分那会数字
 					return n;
 					}
+				//6.2 否则，塞回ch2，继续往下走
 				unread(r, ch2);
 				}
-
+			//7.尝试读取一个 token
 			String token = readToken(r, (char) ch);
 			if(RT.suppressRead())
 				return null;
+			//8.解释 token 含义
 			return interpretToken(token);
 			}
 		}
 	catch(Exception e)
 		{
+		//读取过程中发生异常
+		//如果是递归调用，或者非 LineNumberingPushbackReader，直接抛出异常
 		if(isRecursive || !(r instanceof LineNumberingPushbackReader))
 			throw Util.sneakyThrow(e);
+		//抛出 ReaderException,带上行号和列号
 		LineNumberingPushbackReader rdr = (LineNumberingPushbackReader) r;
 		//throw Util.runtimeException(String.format("ReaderError:(%d,1) %s", rdr.getLineNumber(), e.getMessage()), e);
 		throw new ReaderException(rdr.getLineNumber(), rdr.getColumnNumber(), e);
@@ -406,7 +470,11 @@ private static Object matchNumber(String s){
 		}
 	return null;
 }
-
+/**
+ * 查找 macros table，返回有效的reader
+ * @param ch
+ * @return
+ */
 static private IFn getMacro(int ch){
 	if(ch < macros.length)
 		return macros[ch];

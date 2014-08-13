@@ -230,15 +230,27 @@ static public <K,V> void clearCache(ReferenceQueue rq, ConcurrentHashMap<K, Refe
 			}
 		}
 }
-
+/**
+ * 创建Runtime异常
+ * @param s
+ * @return
+ */
 static public RuntimeException runtimeException(String s){
 	return new RuntimeException(s);
 }
-
+/**
+ * 创建Runtime异常加上 cause
+ * @param s
+ * @param e
+ * @return
+ */
 static public RuntimeException runtimeException(String s, Throwable e){
 	return new RuntimeException(s, e);
 }
 
+/**
+ * 非常巧妙的办法包装 checked 异常并抛出，无需在函数签名里声明抛出 checked 异常。
+ */
 /**
  * Throw even checked exceptions without being required
  * to declare them or catch them. Suggested idiom:
@@ -252,7 +264,24 @@ static public RuntimeException sneakyThrow(Throwable t) {
 	Util.<RuntimeException>sneakyThrow0(t);
 	return null;
 }
-
+/**
+ * 这个方法编译后是下列的直接，(T)的强制转型其实不存在，因此不会有什么ClassCastException，我感觉这里是利用了泛型的擦拭特性,
+ * 或者 Java 语言规范？。
+ * 
+ *  public static <T extends java/lang/Throwable> void sneakyThrow0(java.lang.Throwable) throws T;
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: athrow  //直接抛出异常，没有checkcast转型指令 
+      LineNumberTable:
+        line 21: 0
+    Exceptions:
+      throws java.lang.Throwable
+    Signature: #19                          // <T:Ljava/lang/Throwable;>(Ljava/lang/Throwable;)V^TT;
+ * @param t
+ * @throws T
+ */
 @SuppressWarnings("unchecked")
 static private <T extends Throwable> void sneakyThrow0(Throwable t) throws T {
 	throw (T) t;
