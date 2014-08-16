@@ -101,7 +101,7 @@ static
 	macros['"'] = new StringReader();  // " 开头的使用字符串Reader
 	macros[';'] = new CommentReader();  // 注释
 	macros['\''] = new WrappingReader(QUOTE); // quote 
-	macros['@'] = new WrappingReader(DEREF);// deref
+	macros['@'] = new WrappingReader(DEREF);// deref符号@
 	macros['^'] = new MetaReader();   //元数据
 	macros['`'] = new SyntaxQuoteReader(); // syntax quote
 	macros['~'] = new UnquoteReader();   // unquote
@@ -286,7 +286,12 @@ static public Object read(PushbackReader r, boolean eofIsError, Object eofValue,
 		throw new ReaderException(rdr.getLineNumber(), rdr.getColumnNumber(), e);
 		}
 }
-
+/**
+ * 读取一个 token
+ * @param r
+ * @param initch
+ * @return
+ */
 static private String readToken(PushbackReader r, char initch) {
 	StringBuilder sb = new StringBuilder();
 	sb.append(initch);
@@ -294,6 +299,7 @@ static private String readToken(PushbackReader r, char initch) {
 	for(; ;)
 		{
 		int ch = read1(r);
+		//如果是末尾、空白或者终止宏字符，那么退回字符并返回已经读取的字符串
 		if(ch == -1 || isWhitespace(ch) || isTerminatingMacro(ch))
 			{
 			unread(r, ch);
@@ -302,7 +308,12 @@ static private String readToken(PushbackReader r, char initch) {
 		sb.append((char) ch);
 		}
 }
-
+/**
+ * 读取数字
+ * @param r
+ * @param initch
+ * @return
+ */
 static private Object readNumber(PushbackReader r, char initch) {
 	StringBuilder sb = new StringBuilder();
 	sb.append(initch);
@@ -310,6 +321,7 @@ static private Object readNumber(PushbackReader r, char initch) {
 	for(; ;)
 		{
 		int ch = read1(r);
+		//遇到末尾、空白和宏字符就结束读取，退回字符并跳出循环
 		if(ch == -1 || isWhitespace(ch) || isMacro(ch))
 			{
 			unread(r, ch);
@@ -319,12 +331,20 @@ static private Object readNumber(PushbackReader r, char initch) {
 		}
 
 	String s = sb.toString();
+	//尝试匹配数字
 	Object n = matchNumber(s);
 	if(n == null)
 		throw new NumberFormatException("Invalid number: " + s);
 	return n;
 }
-
+/**
+ * 读取 Unicode 字符
+ * @param token
+ * @param offset
+ * @param length
+ * @param base
+ * @return
+ */
 static private int readUnicodeChar(String token, int offset, int length, int base) {
 	if(token.length() != offset + length)
 		throw new IllegalArgumentException("Invalid unicode character: \\" + token);
@@ -338,7 +358,15 @@ static private int readUnicodeChar(String token, int offset, int length, int bas
 		}
 	return (char) uc;
 }
-
+/**
+ * 同样，读取 unicode 字符，相比 readUnicodeChar 的区别是从输入流中读取，而前者是从token中读取
+ * @param r
+ * @param initch
+ * @param base
+ * @param length
+ * @param exact
+ * @return
+ */
 static private int readUnicodeChar(PushbackReader r, int initch, int base, int length, boolean exact) {
 	int uc = Character.digit(initch, base);
 	if(uc == -1)
@@ -361,41 +389,56 @@ static private int readUnicodeChar(PushbackReader r, int initch, int base, int l
 		throw new IllegalArgumentException("Invalid character length: " + i + ", should be: " + length);
 	return uc;
 }
-
+/**
+ * 解释读出来的 Token 是什么意思
+ * @param s
+ * @return
+ */
 static private Object interpretToken(String s) {
+	//nil
 	if(s.equals("nil"))
 		{
 		return null;
 		}
+	//true
 	else if(s.equals("true"))
 		{
 		return RT.T;
 		}
+	//false
 	else if(s.equals("false"))
 		{
 		return RT.F;
 		}
 	Object ret = null;
-
+	//是否是symbol类型，尝试匹配
 	ret = matchSymbol(s);
 	if(ret != null)
 		return ret;
-
+	// 未知的任何东西
 	throw Util.runtimeException("Invalid token: " + s);
 }
 
-
+/**
+ * 匹配是否是合法的 symbol
+ * @param s
+ * @return
+ */
 private static Object matchSymbol(String s){
+	//[:]?([\\D&&[^/]].*/)?(/|[\\D&&[^/]][^/]*)
 	Matcher m = symbolPat.matcher(s);
 	if(m.matches())
 		{
 		int gc = m.groupCount();
-		String ns = m.group(1);
-		String name = m.group(2);
+		String ns = m.group(1); //namespace, 匹配分组1 ([\\D&&[^/]].*/)
+		String name = m.group(2); //symbol name,匹配分组2 (/|[\\D&&[^/]][^/]*)
+		//过滤非法的 symbol，namespace以:/结尾，或者 name 以 : 结尾，或者除了首字符外包含 ::，都直接返回null，表示不匹配
 		if(ns != null && ns.endsWith(":/")
 		   || name.endsWith(":")
 		   || s.indexOf("::", 1) != -1)
 			return null;
+		//如果以双冒号开始，例如::a，将转成 :{namespace}/a 形式的keyword
+		//A keyword that begins with two colons is resolved in the current namespace
 		if(s.startsWith("::"))
 			{
 			Symbol ks = Symbol.intern(s.substring(2));
@@ -410,64 +453,95 @@ private static Object matchSymbol(String s){
 			else
 				return null;
 			}
+		//如果是keyword，以冒号开始
 		boolean isKeyword = s.charAt(0) == ':';
 		Symbol sym = Symbol.intern(s.substring(isKeyword ? 1 : 0));
+		//转成keyword
 		if(isKeyword)
 			return Keyword.intern(sym);
+		//否则返回 symbol
 		return sym;
 		}
 	return null;
 }
 
-
+/**
+ * 使用正则表达式匹配数字，捕获组
+ * @param s
+ * @return
+ */
 private static Object matchNumber(String s){
 	Matcher m = intPat.matcher(s);
+	//([-+]?)(?:(0)|([1-9][0-9]*)|0[xX]([0-9A-Fa-f]+)|0([0-7]+)|([1-9][0-9]?)[rR]([0-9A-Za-z]+)|0[0-9]+)(N)?
+	//尝试匹配整数
 	if(m.matches())
 		{
+		//如果第二组捕获，也就是匹配0
 		if(m.group(2) != null)
 			{
+			//并且第八组也就是N匹配，返回BigInt的零值
 			if(m.group(8) != null)
 				return BigInt.ZERO;
+			//否则返回普通数字0
 			return Numbers.num(0);
 			}
+		//匹配正负符号
 		boolean negate = (m.group(1).equals("-"));
 		String n;
 		int radix = 10;
+		//如果第三组匹配，也就是 ([1-9][0-9]*)，表明是十进制
 		if((n = m.group(3)) != null)
 			radix = 10;
+		//如果0[xX]([0-9A-Fa-f]+)匹配，表明是16进制
 		else if((n = m.group(4)) != null)
 			radix = 16;
+		//如果0([0-7]+)匹配，表明是8进制
 		else if((n = m.group(5)) != null)
 			radix = 8;
+		//如果([1-9][0-9]?)[rR]([0-9A-Za-z]+)匹配，表明是指定进制，例如2r10101，二进制
 		else if((n = m.group(7)) != null)
+			//读取进制，也就是([1-9][0-9]?)
 			radix = Integer.parseInt(m.group(6));
+		//不匹配，返回null
 		if(n == null)
 			return null;
+		//尝试创建BigInteger
 		BigInteger bn = new BigInteger(n, radix);
+		//决定正负符号
 		if(negate)
 			bn = bn.negate();
+		//如果结尾是N，返回 BigInt
 		if(m.group(8) != null)
 			return BigInt.fromBigInteger(bn);
+		//如果位数少于64位，返回Long类型，否则提升到 BigInt
 		return bn.bitLength() < 64 ?
 		       Numbers.num(bn.longValue())
 		                           : BigInt.fromBigInteger(bn);
 		}
+	//尝试匹配浮点数
+	//([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)(M)?
 	m = floatPat.matcher(s);
 	if(m.matches())
 		{
+		//如果(M)? 存在，返回BigDecimal,分组1就是([-+]?[0-9]+(\\.[0-9]*)?([eE][-+]?[0-9]+)?)
 		if(m.group(4) != null)
 			return new BigDecimal(m.group(1));
+		//否则，返回 Double
 		return Double.parseDouble(s);
 		}
+	//([-+]?[0-9]+)/([0-9]+)  匹配分数
 	m = ratioPat.matcher(s);
 	if(m.matches())
 		{
+		//获取分子
 		String numerator = m.group(1);
+		//如果有加号，去掉加号
 		if (numerator.startsWith("+")) numerator = numerator.substring(1);
-
+		//分子除以分母就是所谓分数
 		return Numbers.divide(Numbers.reduceBigInt(BigInt.fromBigInteger(new BigInteger(numerator))),
 		                      Numbers.reduceBigInt(BigInt.fromBigInteger(new BigInteger(m.group(2)))));
 		}
+	//不匹配任何数字类型，返回null
 	return null;
 }
 /**
@@ -480,26 +554,42 @@ static private IFn getMacro(int ch){
 		return macros[ch];
 	return null;
 }
-
+/**
+ * 是否是宏字符
+ * @param ch
+ * @return
+ */
 static private boolean isMacro(int ch){
 	return (ch < macros.length && macros[ch] != null);
 }
-
+/**	
+ * 是否是终止宏字符
+ * @param ch
+ * @return
+ */
 static private boolean isTerminatingMacro(int ch){
 	return (ch != '#' && ch != '\'' && ch != '%' && isMacro(ch));
 }
 
+/**
+ * 正则表达式reader
+ * @author dennis
+ *
+ */
 public static class RegexReader extends AFn{
 	static StringReader stringrdr = new StringReader();
 
 	public Object invoke(Object reader, Object doublequote) {
 		StringBuilder sb = new StringBuilder();
 		Reader r = (Reader) reader;
+		//读到下一个双引号结束
 		for(int ch = read1(r); ch != '"'; ch = read1(r))
 			{
+			//无效的末尾
 			if(ch == -1)
 				throw Util.runtimeException("EOF while reading regex");
 			sb.append( (char) ch );
+			//忽略escape，因此不需要像java的正则那样双斜杠 escape
 			if(ch == '\\')	//escape
 				{
 				ch = read1(r);
@@ -508,24 +598,34 @@ public static class RegexReader extends AFn{
 				sb.append( (char) ch ) ;
 				}
 			}
+		//编译正则
 		return Pattern.compile(sb.toString());
 	}
 }
-
+/**
+ * 字符串reader
+ * @author dennis
+ *
+ */
 public static class StringReader extends AFn{
 	public Object invoke(Object reader, Object doublequote) {
+		//结果字符串
 		StringBuilder sb = new StringBuilder();
 		Reader r = (Reader) reader;
-
+		//读取直到遇到结束的双引号
 		for(int ch = read1(r); ch != '"'; ch = read1(r))
 			{
+			//意外结束
 			if(ch == -1)
 				throw Util.runtimeException("EOF while reading string");
+			//转义字符
 			if(ch == '\\')	//escape
 				{
+				//读取下一个字符
 				ch = read1(r);
 				if(ch == -1)
 					throw Util.runtimeException("EOF while reading string");
+				//根据预读的字符判断是什么转义符号
 				switch(ch)
 					{
 					case 't':
@@ -538,8 +638,10 @@ public static class StringReader extends AFn{
 						ch = '\n';
 						break;
 					case '\\':
+						//  双反斜杠转义，也就是反斜杠
 						break;
 					case '"':
+						// 双引号转义，也就是要使用双引号
 						break;
 					case 'b':
 						ch = '\b';
@@ -549,7 +651,9 @@ public static class StringReader extends AFn{
 						break;
 					case 'u':
 					{
+						//unicode 字符 \u1234
 					ch = read1(r);
+					//非16进制，抛出异常
 					if (Character.digit(ch, 16) == -1)
 						throw Util.runtimeException("Invalid unicode escape: \\u" + (char) ch);
 					ch = readUnicodeChar((PushbackReader) r, ch, 16, 4, true);
@@ -557,6 +661,7 @@ public static class StringReader extends AFn{
 					}
 					default:
 					{
+						//8进制转义字符，如\063 表示字符3
 					if(Character.isDigit(ch))
 						{
 						ch = readUnicodeChar((PushbackReader) r, ch, 8, 3, false);
@@ -568,12 +673,17 @@ public static class StringReader extends AFn{
 					}
 					}
 				}
+			//拼接到结果字符串
 			sb.append((char) ch);
 			}
 		return sb.toString();
 	}
 }
-
+/**
+ * 注释 reader
+ * @author dennis
+ *
+ */
 public static class CommentReader extends AFn{
 	public Object invoke(Object reader, Object semicolon) {
 		Reader r = (Reader) reader;
@@ -581,12 +691,17 @@ public static class CommentReader extends AFn{
 		do
 			{
 			ch = read1(r);
+			//一整行都是注释，忽略
 			} while(ch != -1 && ch != '\n' && ch != '\r');
 		return r;
 	}
 
 }
-
+/**
+ * 忽略 #_ 开始的对象
+ * @author dennis
+ *
+ */
 public static class DiscardReader extends AFn{
 	public Object invoke(Object reader, Object underscore) {
 		PushbackReader r = (PushbackReader) reader;
@@ -594,7 +709,11 @@ public static class DiscardReader extends AFn{
 		return r;
 	}
 }
-
+/**
+ * 读取后的对象和传入的symbol组成 list，针对quote和deref符号，也就是'和@
+ * @author dennis
+ *
+ */
 public static class WrappingReader extends AFn{
 	final Symbol sym;
 
@@ -609,7 +728,11 @@ public static class WrappingReader extends AFn{
 	}
 
 }
-
+/**
+ * 废弃掉的WrappingReader
+ * @author dennis
+ *
+ */
 public static class DeprecatedWrappingReader extends AFn{
 	final Symbol sym;
 	final String macro;
@@ -629,7 +752,11 @@ public static class DeprecatedWrappingReader extends AFn{
 	}
 
 }
-
+/**
+ * #'x 的 var reader，返回 (var value) list
+ * @author dennis
+ *
+ */
 public static class VarReader extends AFn{
 	public Object invoke(Object reader, Object quote) {
 		PushbackReader r = (PushbackReader) reader;
@@ -668,15 +795,25 @@ static class DerefReader extends AFn{
 }
 */
 
+/**
+ * #开头，转交给 dispatchMacros 表中的 fn 来处理
+ * @author dennis
+ *
+ */
 public static class DispatchReader extends AFn{
+	//hash 是 # 符号
 	public Object invoke(Object reader, Object hash) {
+		//读取下一个字符，决定采用哪个reader fn
 		int ch = read1((Reader) reader);
 		if(ch == -1)
 			throw Util.runtimeException("EOF while reading character");
 		IFn fn = dispatchMacros[ch];
 
 		// Try the ctor reader first
+		//参考http://clojure.org/reader:deftype, defrecord, and constructor calls (version 1.3 and later):
+		//Calls to Java class, deftype, and defrecord constructors can be called using their fully qualified class name preceded by # and followed by a vector:
 		if(fn == null) {
+			//如果没有找到 dispatchMacro fn，尝试用 CtorReader
 		unread((PushbackReader) reader, ch);
 		Object result = ctorReader.invoke(reader, ch);
 
@@ -685,33 +822,52 @@ public static class DispatchReader extends AFn{
 		else
 			throw Util.runtimeException(String.format("No dispatch macro for: %c", (char) ch));
 		}
+		
+		//转交给 fn
 		return fn.invoke(reader, ch);
 	}
 }
 
+/**
+ * 为匿名函数的参数产生唯一 symbol
+ * @param n
+ * @return
+ */
 static Symbol garg(int n){
 	return Symbol.intern(null, (n == -1 ? "rest" : ("p" + n)) + "__" + RT.nextID() + "#");
 }
-
+/**
+ * 匿名函数快速记法 reader
+ * @author dennis
+ *
+ */
 public static class FnReader extends AFn{
 	public Object invoke(Object reader, Object lparen) {
 		PushbackReader r = (PushbackReader) reader;
+		//如果 ARG_ENV 已经存在，证明是嵌套的 #() 函数，抛出异常
 		if(ARG_ENV.deref() != null)
 			throw new IllegalStateException("Nested #()s are not allowed");
 		try
 			{
+			//压入参数map，var名称固定为 ARG_ENV，临时使用，不用担心混淆,为了保证参数顺序，必须使用sorted-map
 			Var.pushThreadBindings(
 					RT.map(ARG_ENV, PersistentTreeMap.EMPTY));
+			//退回左括号
 			unread(r, '(');
+			//将整个form读取出来,同时插入参数到 ARGV_ENV
 			Object form = read(r, true, null, true);
-
+			//参数列表
 			PersistentVector args = PersistentVector.EMPTY;
+			// %x 到 参数的映射map，保证顺序 % %1 %2
 			PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.deref();
+			//倒序参数
 			ISeq rargs = argsyms.rseq();
 			if(rargs != null)
 				{
+				//获取最大参数编号
 				int higharg = (Integer) ((Map.Entry) rargs.first()).getKey();
 				if(higharg > 0)
+					//从1到higharg，一一关联到 args vector
 					{
 					for(int i = 1; i <= higharg; ++i)
 						{
@@ -721,29 +877,41 @@ public static class FnReader extends AFn{
 						args = args.cons(sym);
 						}
 					}
+				//存在可变参数 %&
 				Object restsym = argsyms.valAt(-1);
 				if(restsym != null)
 					{
+					//加入两个： & 和 参数名
 					args = args.cons(Compiler._AMP_);
 					args = args.cons(restsym);
 					}
 				}
+			
+			//返回一个 fn list 形如 (fn [arguments] form)
 			return RT.list(Compiler.FN, args, form);
 			}
 		finally
 			{
+			//弹出 ARG_ENV
 			Var.popThreadBindings();
 			}
 	}
 }
-
+/**
+ * 注册匿名参数
+ * @param n
+ * @return
+ */
 static Symbol registerArg(int n){
 	PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.deref();
 	if(argsyms == null)
 		{
+		//不在快速记法内，抛出异常
 		throw new IllegalStateException("arg literal not in #()");
 		}
+	//尝试获取，如果存在，直接返回
 	Symbol ret = (Symbol) argsyms.valAt(n);
+	//否则，产生一个唯一 symbol（类似gensym)，关联到n
 	if(ret == null)
 		{
 		ret = garg(n);
@@ -751,121 +919,167 @@ static Symbol registerArg(int n){
 		}
 	return ret;
 }
-
+/**
+ * 读取 % 快速记法参数
+ * @author dennis
+ *
+ */
 static class ArgReader extends AFn{
 	public Object invoke(Object reader, Object pct) {
 		PushbackReader r = (PushbackReader) reader;
 		if(ARG_ENV.deref() == null)
 			{
+			//不在匿名函数快速记法范围内，尝试解释 %，比如你可以定义(def % 3)
 			return interpretToken(readToken(r, '%'));
 			}
 		int ch = read1(r);
 		unread(r, ch);
 		//% alone is first arg
+		//% 就是第一个参数
 		if(ch == -1 || isWhitespace(ch) || isTerminatingMacro(ch))
 			{
+			//注册参数到 ARGV_ENV
 			return registerArg(1);
 			}
 		Object n = read(r, true, null, true);
+		//可变参数， %&，编号负数
 		if(n.equals(Compiler._AMP_))
 			return registerArg(-1);
+		//非数字，非法参数
 		if(!(n instanceof Number))
 			throw new IllegalStateException("arg literal must be %, %& or %integer");
+		//注册参数
 		return registerArg(((Number) n).intValue());
 	}
 }
-
+/**
+ * 元数据 reader
+ * @author dennis
+ *
+ */
 public static class MetaReader extends AFn{
 	public Object invoke(Object reader, Object caret) {
 		PushbackReader r = (PushbackReader) reader;
 		int line = -1;
 		int column = -1;
+		//获取行号和列号
 		if(r instanceof LineNumberingPushbackReader)
 			{
 			line = ((LineNumberingPushbackReader) r).getLineNumber();
 			column = ((LineNumberingPushbackReader) r).getColumnNumber()-1;
 			}
+		//meta对象，可能是map，可能是symbol，也可能是字符串，例如(defn t [^"[B" bs] (String. bs))
 		Object meta = read(r, true, null, true);
+		//symbol 或者 字符串，就是简单的type hint tag
 		if(meta instanceof Symbol || meta instanceof String)
 			meta = RT.map(RT.TAG_KEY, meta);
+		//如果是keyword，证明是布尔值的开关变量，如 ^:dynamic ^:private
 		else if (meta instanceof Keyword)
 			meta = RT.map(meta, RT.T);
+		//如果连 map 都不是，那很抱歉，非法的meta数据
 		else if(!(meta instanceof IPersistentMap))
 			throw new IllegalArgumentException("Metadata must be Symbol,Keyword,String or Map");
 
+		//读取要附加元数据的目标对象
 		Object o = read(r, true, null, true);
 		if(o instanceof IMeta)
+			//如果可以附加，那么继续走下去
 			{
 			if(line != -1 && o instanceof ISeq)
 				{
+				//如果是ISeq，加入行号，列号，编译的时候可以行号写入字节码
 				meta = ((IPersistentMap) meta).assoc(RT.LINE_KEY, line).assoc(RT.COLUMN_KEY, column);
 				}
 			if(o instanceof IReference)
 				{
+				//如果是 ref，重设 meta
 				((IReference)o).resetMeta((IPersistentMap) meta);
 				return o;
 				}
+			//增加 meta 到原有的 ometa
 			Object ometa = RT.meta(o);
 			for(ISeq s = RT.seq(meta); s != null; s = s.next()) {
 			IMapEntry kv = (IMapEntry) s.first();
 			ometa = RT.assoc(ometa, kv.getKey(), kv.getValue());
 			}
+			//关联到o
 			return ((IObj) o).withMeta((IPersistentMap) ometa);
 			}
 		else
+			//不可附加元素，抱歉，直接抛出异常
 			throw new IllegalArgumentException("Metadata can only be applied to IMetas");
 	}
 
 }
-
+/**
+ * syntax ` quote reader 
+ * @author dennis
+ *
+ */
 public static class SyntaxQuoteReader extends AFn{
 	public Object invoke(Object reader, Object backquote) {
 		PushbackReader r = (PushbackReader) reader;
 		try
 			{
+			//压入 GENSYM_ENV
 			Var.pushThreadBindings(
 					RT.map(GENSYM_ENV, PersistentHashMap.EMPTY));
 
 			Object form = read(r, true, null, true);
+			//对读出来的form，如果有 a# 变量，做下 gensym 替代
 			return syntaxQuote(form);
 			}
 		finally
 			{
+			//弹出 GENSYM_ENV
 			Var.popThreadBindings();
 			}
 	}
 
 	static Object syntaxQuote(Object form) {
 		Object ret;
+		//如果 form 本身是 special form，直接返回 quote list
 		if(Compiler.isSpecial(form))
 			ret = RT.list(Compiler.QUOTE, form);
 		else if(form instanceof Symbol)
+			//如果 form 是一个 symbol
 			{
 			Symbol sym = (Symbol) form;
+			//以#结尾并且没有 ns， generated symbol 
 			if(sym.ns == null && sym.name.endsWith("#"))
 				{
 				IPersistentMap gmap = (IPersistentMap) GENSYM_ENV.deref();
+				//不在 syntax quote范围内，抛出异常
 				if(gmap == null)
 					throw new IllegalStateException("Gensym literal not in syntax-quote");
+				//看下是不是已经存在了，不存在，关联进去
 				Symbol gs = (Symbol) gmap.valAt(sym);
 				if(gs == null)
 					GENSYM_ENV.set(gmap.assoc(sym, gs = Symbol.intern(null,
+							//可以看到 gensym 的规则 name 去掉#结尾，然后加上 __{id}__auto__
 					                                                  sym.name.substring(0, sym.name.length() - 1)
 					                                                  + "__" + RT.nextID() + "__auto__")));
+				//替换sym为实际产生的symbol
 				sym = gs;
 				}
+			//以.结尾，应该是 class,record,type之类构造器
 			else if(sym.ns == null && sym.name.endsWith("."))
 				{
+				//移除末尾的.
 				Symbol csym = Symbol.intern(null, sym.name.substring(0, sym.name.length() - 1));
+				//尝试resolve解析，变成qulified symbol
 				csym = Compiler.resolveSymbol(csym);
+				//返回解析后的全限定 symbol
 				sym = Symbol.intern(null, csym.name.concat("."));
 				}
 			else if(sym.ns == null && sym.name.startsWith("."))
 				{
-				// Simply quote method names.
+				// Simply quote method names. 
+				//方法名称，如 .toString
 				}
 			else
 				{
+				//ns 可能是类名
 				Object maybeClass = null;
 				if(sym.ns != null)
 					maybeClass = Compiler.currentNS().getMapping(
@@ -873,57 +1087,74 @@ public static class SyntaxQuoteReader extends AFn{
 				if(maybeClass instanceof Class)
 					{
 					// Classname/foo -> package.qualified.Classname/foo
+					// Classname/foo  转成 package.qualified.Classname/foo
 					sym = Symbol.intern(
 							((Class)maybeClass).getName(), sym.name);
 					}
 				else
+					//解析成全限定名
 					sym = Compiler.resolveSymbol(sym);
 				}
 			ret = RT.list(Compiler.QUOTE, sym);
 			}
+		//如果是unqoute form ~x，取x
 		else if(isUnquote(form))
 			return RT.second(form);
+		//如果是 ~@x，x不是list，抛出异常，正确应该是 ~@(x y z)
 		else if(isUnquoteSplicing(form))
 			throw new IllegalStateException("splice not in list");
 		else if(form instanceof IPersistentCollection)
 			{
+			//如果form是集合，分情况分析
+			
+			//1.如果是record，直接返回
 			if(form instanceof IRecord)
 				ret = form;
+			//2.如果是map，平铺成一层，转成(apply hash-map (seq (concat x y z ...)))
+			// keyvals 递归展开，下同
 			else if(form instanceof IPersistentMap)
 				{
 				IPersistentVector keyvals = flattenMap(form);
 				ret = RT.list(APPLY, HASHMAP, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(keyvals.seq()))));
 				}
+			//3.如果是vector，转成 (apply vector (seq (concat ......)))
 			else if(form instanceof IPersistentVector)
 				{
 				ret = RT.list(APPLY, VECTOR, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(((IPersistentVector) form).seq()))));
 				}
+			//4.如果是set，转成(apply hash-set (seq (concat ......)))
 			else if(form instanceof IPersistentSet)
 				{
 				ret = RT.list(APPLY, HASHSET, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(((IPersistentSet) form).seq()))));
 				}
+			//如果是seq或list,直接(seq (concat ......))
 			else if(form instanceof ISeq || form instanceof IPersistentList)
 				{
 				ISeq seq = RT.seq(form);
+				//特殊处理空串 (list)
 				if(seq == null)
 					ret = RT.cons(LIST,null);
 				else
 					ret = RT.list(SEQ, RT.cons(CONCAT, sqExpandList(seq)));
 				}
 			else
+				//不知道什么集合类型
 				throw new UnsupportedOperationException("Unknown Collection type");
 			}
+		//如果form是一些"常量"，结果就是这些常量，例如`3=3
 		else if(form instanceof Keyword
 		        || form instanceof Number
 		        || form instanceof Character
 		        || form instanceof String)
 			ret = form;
 		else
+			//否则，转成 quote form，例如 `#"test" 正则表达式
 			ret = RT.list(Compiler.QUOTE, form);
-
+		//如果有元数据，做下传递
 		if(form instanceof IObj && RT.meta(form) != null)
 			{
 			//filter line and column numbers
+			//移除line和column，然后关联到ret，防止覆盖新的ret中的行号和列号
 			IPersistentMap newMeta = ((IObj) form).meta().without(RT.LINE_KEY).without(RT.COLUMN_KEY);
 			if(newMeta.count() > 0)
 				return RT.list(WITH_META, ret, syntaxQuote(((IObj) form).meta()));
@@ -931,21 +1162,35 @@ public static class SyntaxQuoteReader extends AFn{
 		return ret;
 	}
 
+	/**
+	 * 如果form是集合，展开，递归处理
+	 * @param seq
+	 * @return
+	 */
 	private static ISeq sqExpandList(ISeq seq) {
+		//注意结果是 ISeq
 		PersistentVector ret = PersistentVector.EMPTY;
 		for(; seq != null; seq = seq.next())
 			{
 			Object item = seq.first();
+			//unqote form，转成list，如(~3) 变成 (3)
 			if(isUnquote(item))
 				ret = ret.cons(RT.list(LIST, RT.second(item)));
+			//同样 (~@x) 变成(x)，其中x展开拼接
 			else if(isUnquoteSplicing(item))
 				ret = ret.cons(RT.second(item));
 			else
+				//递归 syntaxQuote
 				ret = ret.cons(RT.list(LIST, syntaxQuote(item)));
 			}
 		return ret.seq();
 	}
 
+	/**
+	 * 展开map成vector，flattern一层
+	 * @param form
+	 * @return
+	 */
 	private static IPersistentVector flattenMap(Object form){
 		IPersistentVector keyvals = PersistentVector.EMPTY;
 		for(ISeq s = RT.seq(form); s != null; s = s.next())
@@ -958,36 +1203,56 @@ public static class SyntaxQuoteReader extends AFn{
 	}
 
 }
-
+/**
+ * 判断是不是 unquote splicing
+ * @param form
+ * @return
+ */
 static boolean isUnquoteSplicing(Object form){
 	return form instanceof ISeq && Util.equals(RT.first(form),UNQUOTE_SPLICING);
 }
-
+/**
+ * 判断是否是 unquote
+ * @param form
+ * @return
+ */
 static boolean isUnquote(Object form){
 	return form instanceof ISeq && Util.equals(RT.first(form),UNQUOTE);
 }
-
+/**
+ * ~x或者~@x reader
+ * @author dennis
+ *
+ */
 static class UnquoteReader extends AFn{
 	public Object invoke(Object reader, Object comma) {
 		PushbackReader r = (PushbackReader) reader;
 		int ch = read1(r);
 		if(ch == -1)
 			throw Util.runtimeException("EOF while reading character");
+		//如果是~@
 		if(ch == '@')
 			{
 			Object o = read(r, true, null, true);
+			//转成(~@ result)
 			return RT.list(UNQUOTE_SPLICING, o);
 			}
 		else
 			{
+			//退回ch
 			unread(r, ch);
 			Object o = read(r, true, null, true);
+			//否则就是 ~x
 			return RT.list(UNQUOTE, o);
 			}
 	}
 
 }
-
+/**
+ * 字符读取器
+ * @author dennis
+ *
+ */
 public static class CharacterReader extends AFn{
 	public Object invoke(Object reader, Object backslash) {
 		PushbackReader r = (PushbackReader) reader;
@@ -995,29 +1260,45 @@ public static class CharacterReader extends AFn{
 		if(ch == -1)
 			throw Util.runtimeException("EOF while reading character");
 		String token = readToken(r, (char) ch);
+		//1.单字符
 		if(token.length() == 1)
 			return Character.valueOf(token.charAt(0));
+		// \newline，各种转义符号
 		else if(token.equals("newline"))
 			return '\n';
+		// \space
 		else if(token.equals("space"))
 			return ' ';
+		// \tab
 		else if(token.equals("tab"))
 			return '\t';
+		// \backspace
 		else if(token.equals("backspace"))
 			return '\b';
 		else if(token.equals("formfeed"))
 			return '\f';
 		else if(token.equals("return"))
 			return '\r';
+		// unicode
 		else if(token.startsWith("u"))
 			{
 			char c = (char) readUnicodeChar(token, 1, 4, 16);
+			// http://blog.chinaunix.net/uid-10468429-id-2953054.html
+			/**
+			 * 3.2.6 代理（Surrogates） 
+D25 高代理码点（high-surrogate code point）：位于范围U+D800到U+DBFF内的Unicode码点。 
+D25a 高代理编码单元（high-surrogate code unit）：在范围D800到DBFF内的16位编码单元，作为UTF-16中代理对的起始编码单元。 
+D26 低代理码点（low-surrogate code point）：位于范围U+DC00到U+DFFF内的Unicode码点。 
+D26a 低代理编码单元（low-surrogate code unit）：在范围DC00到DFFF内的16位编码单元，作为UTF-16中代理对的结尾编码单元。 
+D27 代理对（surrogate pair）：由两个16位编码单元组成的序列来表示单个的抽象字符，其中，代理对的第一部分为高代理编码单元，第二部分为低代理编码单元。 
+			 */
 			if(c >= '\uD800' && c <= '\uDFFF') // surrogate code unit?
 				throw Util.runtimeException("Invalid character constant: \\u" + Integer.toString(c, 16));
 			return c;
 			}
 		else if(token.startsWith("o"))
 			{
+			//8进制字符 \o063
 			int len = token.length() - 1;
 			if(len > 3)
 				throw Util.runtimeException("Invalid octal escape sequence length: " + len);

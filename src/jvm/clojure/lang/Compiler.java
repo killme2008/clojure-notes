@@ -346,6 +346,7 @@ static boolean isSpecial(Object sym){
 
 static Symbol resolveSymbol(Symbol sym){
 	//already qualified or classname?
+	//已经是 qulified 或者 class name，直接返回
 	if(sym.name.indexOf('.') > 0)
 		return sym;
 	if(sym.ns != null)
@@ -355,12 +356,15 @@ static Symbol resolveSymbol(Symbol sym){
 			return sym;
 		return Symbol.intern(ns.name.name, sym.name);
 		}
+	
+    //以当前 ns 做intern，解析为当前ns内的symbol
 	Object o = currentNS().getMapping(sym);
 	if(o == null)
 		return Symbol.intern(currentNS().name.name, sym.name);
 	else if(o instanceof Class)
 		return Symbol.intern(null, ((Class) o).getName());
 	else if(o instanceof Var)
+		//如果var，获取它的symbol
 			{
 			Var v = (Var) o;
 			return Symbol.intern(v.ns.name.name, v.sym.name);
