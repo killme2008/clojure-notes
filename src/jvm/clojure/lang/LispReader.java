@@ -92,7 +92,7 @@ static Var GENSYM_ENV = Var.create(null).setDynamic();
 //sorted-map num->gensymbol
 //处理匿名参数列表的 binding 的 key 值，例如 #(println % %1 %2)中的 %, %1, %2
 static Var ARG_ENV = Var.create(null).setDynamic();
-//构造器 reader，例如 (java.util.Date.)
+//构造器 reader  #record[x y z]语法
 static IFn ctorReader = new CtorReader();
 
 static
@@ -1404,23 +1404,30 @@ public static class EvalReader extends AFn{
 			//1.(var xxx)形式
 			if(fs.equals(THE_VAR))
 				{
-				//全限定var
+				//全限定var,这里可能NPE，提了个 ticket http://dev.clojure.org/jira/browse/CLJ-1507
 				Symbol vs = (Symbol) RT.second(o);
 				return RT.var(vs.ns, vs.name);  //Compiler.resolve((Symbol) RT.second(o),true);
 				}
+			//2. Constructor.
 			if(fs.name.endsWith("."))
 				{
+				//next得到参数列表
 				Object[] args = RT.toArray(RT.next(o));
+				//调用构造器
 				return Reflector.invokeConstructor(RT.classForName(fs.name.substring(0, fs.name.length() - 1)), args);
 				}
+			//3.静态成员 A/a
 			if(Compiler.namesStaticMember(fs))
 				{
 				Object[] args = RT.toArray(RT.next(o));
 				return Reflector.invokeStaticMethod(fs.ns, fs.name, args);
 				}
+			//4.或者尝试解析成当前 ns var，因为在list里，必然是IFN
 			Object v = Compiler.maybeResolveIn(Compiler.currentNS(), fs);
 			if(v instanceof Var)
 				{
+				//强制转成IFN，并调用参数
+				//例如 (defn x [a] (println a)) #=(x 3)
 				return ((IFn) v).applyTo(RT.next(o));
 				}
 			throw Util.runtimeException("Can't resolve " + fs);
@@ -1437,41 +1444,66 @@ public static class EvalReader extends AFn{
 //	}
 //
 //}
-
+/**
+ * Vector 读取器
+ * @author dennis
+ *
+ */
 public static class VectorReader extends AFn{
 	public Object invoke(Object reader, Object leftparen) {
 		PushbackReader r = (PushbackReader) reader;
+		//读出List，然后创建lazy vector
 		return LazilyPersistentVector.create(readDelimitedList(']', r, true));
 	}
 
 }
 
+/**
+ * clojure map reader，从这里可以看出，list是根本，其他数据类型都是先按照list读取，然后转成clojure数据结构
+ * @author dennis
+ *
+ */
 public static class MapReader extends AFn{
 	public Object invoke(Object reader, Object leftparen) {
 		PushbackReader r = (PushbackReader) reader;
+		//仍然是读出List，变成数组
 		Object[] a = readDelimitedList('}', r, true).toArray();
 		if((a.length & 1) == 1)
 			throw Util.runtimeException("Map literal must contain an even number of forms");
+		//调用map来构造
 		return RT.map(a);
 	}
 
 }
-
+/**
+ * hash-set reader
+ * @author dennis
+ *
+ */
 public static class SetReader extends AFn{
 	public Object invoke(Object reader, Object leftbracket) {
 		PushbackReader r = (PushbackReader) reader;
+		//一样
 		return PersistentHashSet.createWithCheck(readDelimitedList('}', r, true));
 	}
 
 }
-
+/**
+ * 不匹配reader，简单抛出异常
+ * @author dennis
+ *
+ */
 public static class UnmatchedDelimiterReader extends AFn{
 	public Object invoke(Object reader, Object rightdelim) {
 		throw Util.runtimeException("Unmatched delimiter: " + rightdelim);
 	}
 
 }
-
+/**
+ * 无法读取的form，简单抛出异常, #<
+ * @author dennis
+ *
+ */
 public static class UnreadableReader extends AFn{
 	public Object invoke(Object reader, Object leftangle) {
 		throw Util.runtimeException("Unreadable form");
@@ -1535,30 +1567,49 @@ public static List readDelimitedList(char delim, PushbackReader r, boolean isRec
 
 	return a;
 }
-
+/**
+ * 构造器 reader
+ * @author dennis
+ *
+ */
 public static class CtorReader extends AFn{
 	public Object invoke(Object reader, Object firstChar){
 		PushbackReader r = (PushbackReader) reader;
 		Object name = read(r, true, null, false);
+		//tag 必须是 symbol
 		if (!(name instanceof Symbol))
 			throw new RuntimeException("Reader tag must be a symbol");
 		Symbol sym = (Symbol)name;
+		//如果包含.，这认为是record，否则就是tagged数据
 		return sym.getName().contains(".") ? readRecord(r, sym) : readTagged(r, sym);
 	}
 
+	/**
+	 * 读取 tagged 对象
+	 * @param reader
+	 * @param tag
+	 * @return
+	 */
 	private Object readTagged(PushbackReader reader, Symbol tag){
+		//读取下一个对象
 		Object o = read(reader, true, null, true);
-
+		//取 *data-readers*
 		ILookup data_readers = (ILookup)RT.DATA_READERS.deref();
+		//根据tag找到相应的 reader
 		IFn data_reader = (IFn)RT.get(data_readers, tag);
 		if(data_reader == null){
+			//没有找到，从default-data-readers查找
+			// default-data-readers包含：#uuid "5231b533-ba17-4787-98a3-f2df37de2aD7" 和 #inst "2014-08-16T18:00:59.519-00:00"
 		data_readers = (ILookup)RT.DEFAULT_DATA_READERS.deref();
 		data_reader = (IFn)RT.get(data_readers, tag);
+		//如果 default-data-readers 也没有，尝试使用 *default-data-reader-fn* 
 		if(data_reader == null){
 		IFn default_reader = (IFn)RT.DEFAULT_DATA_READER_FN.deref();
 		if(default_reader != null)
+			//有则调用
 			return default_reader.invoke(tag, o);
 		else
+			//没有，无法解析
 			throw new RuntimeException("No reader function for tag " + tag.toString());
 		}
 		}
@@ -1566,43 +1617,58 @@ public static class CtorReader extends AFn{
 		return data_reader.invoke(o);
 	}
 
+	/**
+	 * 读取 record
+	 * @param r
+	 * @param recordName
+	 * @return
+	 */
 	private Object readRecord(PushbackReader r, Symbol recordName){
         boolean readeval = RT.booleanCast(RT.READEVAL.deref());
-
+        //检查 *read-eval* 值
 	    if(!readeval)
 		    {
 		    throw Util.runtimeException("Record construction syntax can only be used when *read-eval* == true");
 		    }
 
+	    //load class
 		Class recordClass = RT.classForNameNonLoading(recordName.toString());
 
 		char endch;
+		//是否是 [x y z]形式
 		boolean shortForm = true;
 		int ch = read1(r);
 
 		// flush whitespace
+		//忽略空白
 		while(isWhitespace(ch))
 			ch = read1(r);
 
 		// A defrecord ctor can take two forms. Check for map->R version first.
+		//如果是{}形式, shortForm = false;
 		if(ch == '{')
 			{
 			endch = '}';
 			shortForm = false;
 			}
+		//否则是 vector形式了
 		else if (ch == '[')
 			endch = ']';
 		else
 			throw Util.runtimeException("Unreadable constructor form starting with \"#" + recordName + (char) ch + "\"");
 
+		//读取参数列表
 		Object[] recordEntries = readDelimitedList(endch, r, true).toArray();
 		Object ret = null;
+		//获取所有构造函数
 		Constructor[] allctors = ((Class)recordClass).getConstructors();
 
+		//迭代构造函数，找到最匹配的
 		if(shortForm)
 			{
 			boolean ctorFound = false;
 			for (Constructor ctor : allctors)
+				//尝试查找一个匹配的函数，没有break?当然没有。。clojure动态类型,record也是参数个数重载
 				if(ctor.getParameterTypes().length == recordEntries.length)
 					ctorFound = true;
 
@@ -1613,7 +1679,7 @@ public static class CtorReader extends AFn{
 			}
 		else
 			{
-
+			//map形式，调用 record 的静态 create 工厂方法
 			IPersistentMap vals = RT.map(recordEntries);
 			for(ISeq s = RT.keys(vals); s != null; s = s.next())
 				{

@@ -13,7 +13,11 @@
 package clojure.lang;
 
 import java.util.Collection;
-
+/**
+ * IPersistentVector工厂类
+ * @author dennis
+ *
+ */
 public class LazilyPersistentVector{
 
 
