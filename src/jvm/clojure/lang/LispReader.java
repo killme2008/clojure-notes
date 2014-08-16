@@ -1311,22 +1311,31 @@ D27 代理对（surrogate pair）：由两个16位编码单元组成的序列来
 	}
 
 }
-
+/**
+ * List  reader (x y z)
+ * @author dennis
+ *
+ */
 public static class ListReader extends AFn{
 	public Object invoke(Object reader, Object leftparen) {
 		PushbackReader r = (PushbackReader) reader;
 		int line = -1;
 		int column = -1;
+		//sequence 都需要获取行号，因为很可能是代码form
 		if(r instanceof LineNumberingPushbackReader)
 			{
 			line = ((LineNumberingPushbackReader) r).getLineNumber();
 			column = ((LineNumberingPushbackReader) r).getColumnNumber()-1;
 			}
+		//读取list
 		List list = readDelimitedList(')', r, true);
+		//Null object模式
 		if(list.isEmpty())
 			return PersistentList.EMPTY;
+		//转化成PersistentList
 		IObj s = (IObj) PersistentList.create(list);
 //		IObj s = (IObj) RT.seq(list);
+		//记录行列信息到 meta
 		if(line != -1)
 			{
 			return s.withMeta(RT.map(RT.LINE_KEY, line, RT.COLUMN_KEY, column));
@@ -1368,11 +1377,16 @@ static class CtorReader extends AFn{
 	}
 }
 */
-
+/**
+ * #=java.lang.String , #=(+ 1 2) 之类的 eval reader
+ * @author dennis
+ *
+ */
 public static class EvalReader extends AFn{
 	public Object invoke(Object reader, Object eq) {
 		if (!RT.booleanCast(RT.READEVAL.deref()))
 			{
+			//尊重 *read-eval* 选项
 			throw Util.runtimeException("EvalReader not allowed when *read-eval* is false.");
 			}
 
@@ -1380,13 +1394,17 @@ public static class EvalReader extends AFn{
 		Object o = read(r, true, null, true);
 		if(o instanceof Symbol)
 			{
+			//如果是symbol，当成类名
 			return RT.classForName(o.toString());
 			}
+		//如果是 list
 		else if(o instanceof IPersistentList)
 			{
 			Symbol fs = (Symbol) RT.first(o);
+			//1.(var xxx)形式
 			if(fs.equals(THE_VAR))
 				{
+				//全限定var
 				Symbol vs = (Symbol) RT.second(o);
 				return RT.var(vs.ns, vs.name);  //Compiler.resolve((Symbol) RT.second(o),true);
 				}
@@ -1459,21 +1477,27 @@ public static class UnreadableReader extends AFn{
 		throw Util.runtimeException("Unreadable form");
 	}
 }
-
+/**
+ * 读取list到分割符号 delim为止
+ * @param delim
+ * @param r
+ * @param isRecursive
+ * @return
+ */
 public static List readDelimitedList(char delim, PushbackReader r, boolean isRecursive) {
 	final int firstline =
 			(r instanceof LineNumberingPushbackReader) ?
 			((LineNumberingPushbackReader) r).getLineNumber() : -1;
-
+    //收集结果
 	ArrayList a = new ArrayList();
 
 	for(; ;)
 		{
 		int ch = read1(r);
-
+		//忽略空白
 		while(isWhitespace(ch))
 			ch = read1(r);
-
+		//非法终止
 		if(ch == -1)
 			{
 			if(firstline < 0)
@@ -1481,28 +1505,33 @@ public static List readDelimitedList(char delim, PushbackReader r, boolean isRec
 			else
 				throw Util.runtimeException("EOF while reading, starting at line " + firstline);
 			}
-
+		//读到终止符号，也就是右括号)，停止
 		if(ch == delim)
 			break;
-
+		//可能是macro fn
 		IFn macroFn = getMacro(ch);
 		if(macroFn != null)
 			{
 			Object mret = macroFn.invoke(r, (char) ch);
 			//no op macros return the reader
+			
+			//macro fn 如果是no op，返回reader本身
 			if(mret != r)
+				//非no op,加入结果集合
 				a.add(mret);
 			}
 		else
 			{
+			//非macro，回退ch
 			unread(r, ch);
-
+			//读取object并加入结果集合
 			Object o = read(r, true, null, isRecursive);
+			//同样，根据约定，如果返回是r，表示null
 			if(o != r)
 				a.add(o);
 			}
 		}
-
+	//返回收集的结果集合
 
 	return a;
 }
