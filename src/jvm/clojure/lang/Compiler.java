@@ -305,11 +305,16 @@ static final public Var CLEAR_ROOT = Var.create(null).setDynamic();
 //LocalBinding -> Set<LocalBindingExpr>
 static final public Var CLEAR_SITES = Var.create(null).setDynamic();
 
+    /**
+     * Analyse的上下文，预计结果类型
+     * @author dennis
+     *
+     */
     public enum C{
-	STATEMENT,  //value ignored
-	EXPRESSION, //value required
-	RETURN,      //tail position relative to enclosing recur frame
-	EVAL
+	STATEMENT,  //value ignored  语句，结果值将忽略
+	EXPRESSION, //value required  表达式，要求返回一个结果
+	RETURN,      //tail position relative to enclosing recur frame 关闭recur帧的返回位置
+	EVAL   //求值
 }
 
 private class Recur {};
@@ -6421,7 +6426,13 @@ private static int getAndIncLocalNum(){
 	NEXT_LOCAL_NUM.set(num + 1);
 	return num;
 }
-
+/**
+ * analyse，分析form，产生Expr，然后交给 eval 执行。
+ * read -> form -> eval -> analyse -> expr -> eval
+ * @param context
+ * @param form
+ * @return
+ */
 public static Expr analyze(C context, Object form) {
 	return analyze(context, form, null);
 }
@@ -6682,54 +6693,81 @@ static String errorMsg(String source, int line, int column, String s){
 	return String.format("%s, compiling:(%s:%d:%d)", s, source, line, column);
 }
 
+/**
+ * 读完 LispReader之后，我们进入 eval，Lisp的核心函数就两个: read和eval
+ * 对read出来的form求值
+ * @param form
+ * @return
+ */
 public static Object eval(Object form) {
 	return eval(form, true);
 }
 
+/**
+ * 对读出来的form求值
+ * @param form read出来的form
+ * @param freshLoader 是否刷新loader，暂时没有用到
+ * @return
+ */
 public static Object eval(Object form, boolean freshLoader) {
 	boolean createdLoader = false;
+	//freshLoader 被注释掉了https://github.com/clojure/clojure/commit/2c2ed386ed0f6f875342721bdaace908e298c7f3
+	//为什么？
+	//尝试去掉会出现 link error，重复define class引起
 	if(true)//!LOADER.isBound())
 		{
+		//强制使用一个新的 class loader
 		Var.pushThreadBindings(RT.map(LOADER, RT.makeClassLoader()));
 		createdLoader = true;
 		}
 	try
 		{
+		//获取当前行号和列号，如果元数据有信息，优先使用元数据的信息
 		Object line = lineDeref();
 		Object column = columnDeref();
 		if(RT.meta(form) != null && RT.meta(form).containsKey(RT.LINE_KEY))
 			line = RT.meta(form).valAt(RT.LINE_KEY);
 		if(RT.meta(form) != null && RT.meta(form).containsKey(RT.COLUMN_KEY))
 			column = RT.meta(form).valAt(RT.COLUMN_KEY);
+		//将行列信息压入帧
 		Var.pushThreadBindings(RT.map(LINE, line, COLUMN, column));
 		try
 			{
+			//展开form
 			form = macroexpand(form);
+			//1. (do ...) form
 			if(form instanceof ISeq && Util.equals(RT.first(form), DO))
 				{
+				//依次eval
 				ISeq s = RT.next(form);
 				for(; RT.next(s) != null; s = RT.next(s))
 					eval(RT.first(s), false);
+				//返回最后一个expression的结果
 				return eval(RT.first(s), false);
 				}
+			//2.deftype
 			else if((form instanceof IType) ||
 					(form instanceof IPersistentCollection
 					&& !(RT.first(form) instanceof Symbol
 						&& ((Symbol) RT.first(form)).name.startsWith("def"))))
 				{
+				//分析成 (fn [] form)的匿名函数，
 				ObjExpr fexpr = (ObjExpr) analyze(C.EXPRESSION, RT.list(FN, PersistentVector.EMPTY, form),
-													"eval" + RT.nextID());
+												"eval" + RT.nextID());
+			    //然后调用执行，返回结果	
 				IFn fn = (IFn) fexpr.eval();
 				return fn.invoke();
 				}
 			else
 				{
+				//否则，分析这个from成expr，然后执行。
 				Expr expr = analyze(C.EVAL, form);
 				return expr.eval();
 				}
 			}
 		finally
 			{
+			//弹出调用帧，行列信息
 			Var.popThreadBindings();
 			}
 		}
@@ -6737,6 +6775,7 @@ public static Object eval(Object form, boolean freshLoader) {
 	finally
 		{
 		if(createdLoader)
+			//弹出classLoader
 			Var.popThreadBindings();
 		}
 }

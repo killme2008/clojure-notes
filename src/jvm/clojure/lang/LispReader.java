@@ -36,7 +36,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
- * 在学习 sicp 的时候写过 scheme 解释器，最核心的就两个函数： analyse 和 eval。这里的 LispReader 就扮演 analyse 的角色。
+ * 在学习 sicp 的时候写过 scheme 解释器，最核心的就两个函数： analyse 和 eval。这里的 LispReader 就部分扮演 analyse 的角色。
+ * Compiler.analyse 更进一步。
  * 我过去用 clojure 写过 scheme 解释器：https://github.com/killme2008/cscheme
  * 
  * reader 读取类型的完全定义 http://clojure.org/reader
