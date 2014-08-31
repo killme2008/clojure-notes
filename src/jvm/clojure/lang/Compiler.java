@@ -319,14 +319,36 @@ static final public Var CLEAR_SITES = Var.create(null).setDynamic();
 
 private class Recur {};
 static final public Class RECUR_CLASS = Recur.class;
-    
+/**
+ * 表达式接口，analyse分析出Expr，然后调用eval方法    
+ * @author dennis
+ *
+ */
 interface Expr{
+	/**
+	 * eval执行
+	 * @return
+	 */
 	Object eval() ;
 
+	/**
+	 * 针对当前表达式生成 java 字节码
+	 * @param context eval的context
+	 * @param objx  对象表达式
+	 * @param gen  asm method adapter
+	 */
 	void emit(C context, ObjExpr objx, GeneratorAdapter gen);
 
+	/**
+	 * 是否是 java class?
+	 * @return
+	 */
 	boolean hasJavaClass() ;
 
+	/**
+	 * 返回 java class
+	 * @return
+	 */
 	Class getJavaClass() ;
 }
 
@@ -744,11 +766,16 @@ public static class ImportExpr implements Expr{
 		}
 	}
 }
-
+/**
+ * 字面量表达式，比如nil,字符串，数字等。
+ * @author dennis
+ *
+ */
 public static abstract class LiteralExpr implements Expr{
 	abstract Object val();
 
 	public Object eval(){
+		//返回子类的 value
 		return val();
 	}
 }
@@ -1915,14 +1942,21 @@ static class ConstantExpr extends LiteralExpr{
 		}
 	}
 }
-
+/**
+ * Nil 表达式
+ * @author dennis
+ *
+ */
 static class NilExpr extends LiteralExpr{
+	//不用说，null
 	Object val(){
 		return null;
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//压入常量 NULL
 		gen.visitInsn(Opcodes.ACONST_NULL);
+		//如果是 statement，没有返回值，弹出来。
 		if(context == C.STATEMENT)
 			gen.pop();
 	}
@@ -1936,8 +1970,16 @@ static class NilExpr extends LiteralExpr{
 	}
 }
 
+/**
+ * nil表达式
+ */
 final static NilExpr NIL_EXPR = new NilExpr();
 
+/**
+ * 布尔值字面量表达式
+ * @author dennis
+ *
+ */
 static class BooleanExpr extends LiteralExpr{
 	public final boolean val;
 
@@ -1945,12 +1987,16 @@ static class BooleanExpr extends LiteralExpr{
 	public BooleanExpr(boolean val){
 		this.val = val;
 	}
-
+	/**
+	 * 根据真假返回 true or false.
+	 */
 	Object val(){
 		return val ? RT.T : RT.F;
 	}
 
+
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//字节码是直接调用 Boolean.True 和 Boolean.FALSE 静态变量
 		if(val)
 			gen.getStatic(BOOLEAN_OBJECT_TYPE, "TRUE", BOOLEAN_OBJECT_TYPE);
 		else
@@ -6441,29 +6487,39 @@ private static Expr analyze(C context, Object form, String name) {
 	//todo symbol macro expansion?
 	try
 		{
+		//预处理下form，如果是lazyseq，seq转化成 sequence
 		if(form instanceof LazySeq)
 			{
 			form = RT.seq(form);
+			//如果是null，使用'()
 			if(form == null)
 				form = PersistentList.EMPTY;
 			}
+		//1.form是null，返回NIL_EXPR
 		if(form == null)
 			return NIL_EXPR;
+		//2.布尔值常量
 		else if(form == Boolean.TRUE)
 			return TRUE_EXPR;
 		else if(form == Boolean.FALSE)
 				return FALSE_EXPR;
 		Class fclass = form.getClass();
+		//3. symbol
 		if(fclass == Symbol.class)
 			return analyzeSymbol((Symbol) form);
+		//4. keyword
 		else if(fclass == Keyword.class)
 			return registerKeyword((Keyword) form);
+		//5. number
 		else if(form instanceof Number)
 			return NumberExpr.parse((Number) form);
+		//6. String
 		else if(fclass == String.class)
 				return new StringExpr(((String) form).intern());
+		//还是不明白为什么 CharExpr 去掉了 TODO
 //	else if(fclass == Character.class)
 //		return new CharExpr((Character) form);
+		//7.空数据结构
 		else if(form instanceof IPersistentCollection && ((IPersistentCollection) form).count() == 0)
 				{
 				Expr ret = new EmptyExpr(form);
@@ -6472,21 +6528,28 @@ private static Expr analyze(C context, Object form, String name) {
 							.parse(context == C.EVAL ? context : C.EXPRESSION, ((IObj) form).meta()));
 				return ret;
 				}
+		//8.ISeq数据
 		else if(form instanceof ISeq)
 				return analyzeSeq(context, (ISeq) form, name);
+		//9.vector
 		else if(form instanceof IPersistentVector)
 				return VectorExpr.parse(context, (IPersistentVector) form);
+		//10. defrecord
 		else if(form instanceof IRecord)
 				return new ConstantExpr(form);
+		//11. deftype
 		else if(form instanceof IType)
 				return new ConstantExpr(form);
+		//12. map
 		else if(form instanceof IPersistentMap)
 				return MapExpr.parse(context, (IPersistentMap) form);
+		//13. set
 		else if(form instanceof IPersistentSet)
 				return SetExpr.parse(context, (IPersistentSet) form);
 
 //	else
 		//throw new UnsupportedOperationException();
+		//14.常量
 		return new ConstantExpr(form);
 		}
 	catch(Throwable e)
@@ -6873,10 +6936,18 @@ static void addParameterAnnotation(Object visitor, IPersistentMap meta, int i){
 		 ADD_ANNOTATIONS.invoke(visitor, meta, i);
 }
 
+/**
+ * 分析 symbol 符号
+ * @param sym
+ * @return
+ */
 private static Expr analyzeSymbol(Symbol sym) {
+	//获取 symbol 的类型tag
 	Symbol tag = tagOf(sym);
+	//如果是 symbol 的 ns 是null，那应该是 local 变量
 	if(sym.ns == null) //ns-qualified syms are always Vars
 		{
+		//取local binding
 		LocalBinding b = referenceLocal(sym);
 		if(b != null)
             {
@@ -6885,12 +6956,15 @@ private static Expr analyzeSymbol(Symbol sym) {
 		}
 	else
 		{
+		//如果 symbol.ns 不存在
 		if(namespaceFor(sym) == null)
 			{
 			Symbol nsSym = Symbol.intern(sym.ns);
+			//那可能就是 class
 			Class c = HostExpr.maybeClass(nsSym, false);
 			if(c != null)
 				{
+				//尝试获取 class 静态字段
 				if(Reflector.getField(c, sym.name, true) != null)
 					return new StaticFieldExpr(lineDeref(), columnDeref(), c, sym.name, tag);
 				throw Util.runtimeException("Unable to find static field: " + sym.name + " in " + c);
@@ -7124,7 +7198,11 @@ static LocalBinding referenceLocal(Symbol sym) {
 		}
 	return b;
 }
-
+/**
+ * 获取 object 的 tag，也就是类型信息，从元数据中获取
+ * @param o
+ * @return
+ */
 private static Symbol tagOf(Object o){
 	Object tag = RT.get(RT.meta(o), RT.TAG_KEY);
 	if(tag instanceof Symbol)
