@@ -64,6 +64,7 @@ static final Symbol DEFTYPE = Symbol.intern("deftype*");
 static final Symbol CASE = Symbol.intern("case*");
 
 //static final Symbol THISFN = Symbol.intern("thisfn");
+//对应 java.lang.Class
 static final Symbol CLASS = Symbol.intern("Class");
 static final Symbol NEW = Symbol.intern("new");
 static final Symbol THIS = Symbol.intern("this");
@@ -78,8 +79,9 @@ static final Symbol IDENTITY = Symbol.intern("clojure.core", "identity");
 
 static final Symbol _AMP_ = Symbol.intern("&");
 static final Symbol ISEQ = Symbol.intern("clojure.lang.ISeq");
-
+//inline元数据的key
 static final Keyword inlineKey = Keyword.intern(null, "inline");
+//inline-arities元数据
 static final Keyword inlineAritiesKey = Keyword.intern(null, "inline-arities");
 static final Keyword staticKey = Keyword.intern(null, "static");
 static final Keyword arglistsKey = Keyword.intern(null, "arglists");
@@ -182,6 +184,7 @@ static
 
 
 //symbol->localbinding
+//local env，对应&env
 static final public Var LOCAL_ENV = Var.create(null).setDynamic();
 
 //vector<localbinding>
@@ -193,7 +196,7 @@ static final public Var LOOP_LABEL = Var.create().setDynamic();
 //vector<object>
 static final public Var CONSTANTS = Var.create().setDynamic();
 
-//IdentityHashMap
+//IdentityHashMap，目前来看似乎没有用到？ TODO
 static final public Var CONSTANT_IDS = Var.create().setDynamic();
 
 //vector<keyword>
@@ -362,7 +365,11 @@ public static abstract class UntypedExpr implements Expr{
 		return false;
 	}
 }
-
+/**
+ * Parser接口，分析form，产生对应的Expr，对应各种special form, function calling等。
+ * @author dennis
+ *
+ */
 interface IParser{
 	Expr parse(C context, Object form) ;
 }
@@ -693,7 +700,11 @@ public static class TheVarExpr implements Expr{
 		}
 	}
 }
-
+/**
+ * keyword 表达式
+ * @author dennis
+ *
+ */
 public static class KeywordExpr extends LiteralExpr{
 	public final Keyword k;
 
@@ -1810,13 +1821,18 @@ static class UnresolvedVarExpr implements Expr{
 				"UnresolvedVarExpr cannot be evalled");
 	}
 }
-
+/**
+ * 数字常量的expr
+ * @author dennis
+ *
+ */
 static class NumberExpr extends LiteralExpr implements MaybePrimitiveExpr{
 	final Number n;
 	public final int id;
 
 	public NumberExpr(Number n){
 		this.n = n;
+		//注册到常量池，获取编号
 		this.id = registerConstant(n);
 	}
 
@@ -1827,6 +1843,7 @@ static class NumberExpr extends LiteralExpr implements MaybePrimitiveExpr{
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
 		if(context != C.STATEMENT)
 			{
+			//生成访问常量池的字节码
 			objx.emitConstant(gen, id);
 //			emitUnboxed(context,objx,gen);
 //			HostExpr.emitBoxReturn(objx,gen,getJavaClass());
@@ -1852,6 +1869,9 @@ static class NumberExpr extends LiteralExpr implements MaybePrimitiveExpr{
 		return true;
 	}
 
+	/**
+	 * 针对数字类，生成unbox版本字节码，更高效
+	 */
 	public void emitUnboxed(C context, ObjExpr objx, GeneratorAdapter gen){
 		if(n instanceof Integer)
 			gen.push(n.longValue());
@@ -1860,7 +1880,11 @@ static class NumberExpr extends LiteralExpr implements MaybePrimitiveExpr{
 		else if(n instanceof Long)
 			gen.push(n.longValue());
 	}
-
+	/**
+	 * 解析Form类型，生成适当的字节码
+	 * @param form
+	 * @return
+	 */
 	static public Expr parse(Number form){
 		if(form instanceof Integer
 			|| form instanceof Double
@@ -2018,7 +2042,11 @@ static class BooleanExpr extends LiteralExpr{
 
 final static BooleanExpr TRUE_EXPR = new BooleanExpr(true);
 final static BooleanExpr FALSE_EXPR = new BooleanExpr(false);
-
+/**
+ * 字符串常量表达式
+ * @author dennis
+ *
+ */
 static class StringExpr extends LiteralExpr{
 	public final String str;
 
@@ -2031,6 +2059,7 @@ static class StringExpr extends LiteralExpr{
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//将 str 压入方法栈
 		if(context != C.STATEMENT)
 			gen.push(str);
 	}
@@ -2901,8 +2930,14 @@ static public String demunge(String mungedName){
 	return sb.toString();
 }
 
+/**
+ * 特别针对空数据结构的表达式求值，返回预先定义的静态常量
+ * @author dennis
+ *
+ */
 public static class EmptyExpr implements Expr{
 	public final Object coll;
+	//clojure数据数据结构类型
 	final static Type HASHMAP_TYPE = Type.getType(PersistentArrayMap.class);
 	final static Type HASHSET_TYPE = Type.getType(PersistentHashSet.class);
 	final static Type VECTOR_TYPE = Type.getType(PersistentVector.class);
@@ -2919,6 +2954,7 @@ public static class EmptyExpr implements Expr{
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//返回各自类型的常量 empty
 		if(coll instanceof IPersistentList)
 			gen.getStatic(LIST_TYPE, "EMPTY", EMPTY_LIST_TYPE);
 		else if(coll instanceof IPersistentVector)
@@ -2929,6 +2965,7 @@ public static class EmptyExpr implements Expr{
 					gen.getStatic(HASHSET_TYPE, "EMPTY", HASHSET_TYPE);
 				else
 					throw new UnsupportedOperationException("Unknown Collection type");
+		//如果是 statement，不需要返回值
 		if(context == C.STATEMENT)
 			{
 			gen.pop();
@@ -3156,7 +3193,11 @@ public static class SetExpr implements Expr{
 			return ret;
 	}
 }
-
+/**
+ * Vector 表达式
+ * @author dennis
+ *
+ */
 public static class VectorExpr implements Expr{
 	public final IPersistentVector args;
 	final static Method vectorMethod = Method.getMethod("clojure.lang.IPersistentVector vector(Object[])");
@@ -5033,13 +5074,21 @@ static public class ObjExpr implements Expr{
 			}
 	}
 
+	/**
+	 * 访问 keyword，所有keyword都保存在binding的 keywords表，访问只访问他在kewords表的偏移量。
+	 * 所以keyword才这么高效。
+	 * @param gen
+	 * @param k
+	 */
 	public void emitKeyword(GeneratorAdapter gen, Keyword k){
 		Integer i = (Integer) keywords.valAt(k);
+		//作为常量访问
 		emitConstant(gen, i);
 //		gen.getStatic(fntype, munge(k.sym.toString()), KEYWORD_TYPE);
 	}
 
 	public void emitConstant(GeneratorAdapter gen, int id){
+		//访问常量，获取常量名和类型，生成访问字节码（静态变量）
 		gen.getStatic(objtype, constantName(id), constantType(id));
 	}
 
@@ -6509,6 +6558,7 @@ private static Expr analyze(C context, Object form, String name) {
 			return analyzeSymbol((Symbol) form);
 		//4. keyword
 		else if(fclass == Keyword.class)
+			//注册keyword
 			return registerKeyword((Keyword) form);
 		//5. number
 		else if(form instanceof Number)
@@ -6576,26 +6626,41 @@ static public class CompilerException extends RuntimeException{
 		return getMessage();
 	}
 }
-
+/**
+ * 判断op是不是宏
+ * @param op
+ * @return
+ */
 static public Var isMacro(Object op) {
 	//no local macros for now
+	//如果当前local没有找到op对应的symbol，返回null
 	if(op instanceof Symbol && referenceLocal((Symbol) op) != null)
 		return null;
 	if(op instanceof Symbol || op instanceof Var)
 		{
+		//查找var
                 Var v = (op instanceof Var) ? (Var) op : lookupVar((Symbol) op, false, false);
+        //如果找到，并且isMacro返回true
 		if(v != null && v.isMacro())
 			{
+			//如果非public，抛出异常
 			if(v.ns != currentNS() && !v.isPublic())
 				throw new IllegalStateException("var: " + v + " is not public");
+			//找到宏var，返回
 			return v;
 			}
 		}
 	return null;
 }
-
+/**
+ * 判断是不是inline函数
+ * @param op
+ * @param arity
+ * @return
+ */
 static public IFn isInline(Object op, int arity) {
 	//no local inlines for now
+	//当前local没有找到symbol，返回null
 	if(op instanceof Symbol && referenceLocal((Symbol) op) != null)
 		return null;
 	if(op instanceof Symbol || op instanceof Var)
@@ -6605,10 +6670,13 @@ static public IFn isInline(Object op, int arity) {
 			{
 			if(v.ns != currentNS() && !v.isPublic())
 				throw new IllegalStateException("var: " + v + " is not public");
+			//查看元数据是否包含inline
 			IFn ret = (IFn) RT.get(v.meta(), inlineKey);
 			if(ret != null)
 				{
+				//根据 inline-arities 元信息，决定是否返回ret，inline-arities是操作数集合，类似#{2,3}这样，表示这个函数的2，3个参数版本可以inline
 				IFn arityPred = (IFn) RT.get(v.meta(), inlineAritiesKey);
+				//没有 inline-arities，也返回ret
 				if(arityPred == null || RT.booleanCast(arityPred.invoke(arity)))
 					return ret;
 				}
@@ -6620,7 +6688,12 @@ static public IFn isInline(Object op, int arity) {
 public static boolean namesStaticMember(Symbol sym){
 	return sym.ns != null && namespaceFor(sym) == null;
 }
-
+/**
+ * 拷贝 src 的 tag 信息到 dst
+ * @param src
+ * @param dst
+ * @return
+ */
 public static Object preserveTag(ISeq src, Object dst) {
 	Symbol tag = tagOf(src);
 	if (tag != null && dst instanceof IObj) {
@@ -6629,55 +6702,79 @@ public static Object preserveTag(ISeq src, Object dst) {
 	}
 	return dst;
 }
-
+/**
+ * 展开宏，对应clojure.core/macroexpand-1
+ * @param x
+ * @return
+ */
 public static Object macroexpand1(Object x) {
 	if(x instanceof ISeq)
 		{
 		ISeq form = (ISeq) x;
+		//判断第一个元素类型
 		Object op = RT.first(form);
+		//如果是special form，不需要展开了。
 		if(isSpecial(op))
 			return x;
 		//macro expansion
+		//展开宏的全过程
+		
+		//1.确认是否是macro
 		Var v = isMacro(op);
 		if(v != null)
 			{
 				try
 					{
+					//如果是macro ，将macro 作用在 &form、 &env 和 next form 之上，返回新的form
 						return v.applyTo(RT.cons(form,RT.cons(LOCAL_ENV.get(),form.next())));
 					}
 				catch(ArityException e)
 					{
 						// hide the 2 extra params for a macro
+					//忽略隐藏参数 &from, &env
 						throw new ArityException(e.actual - 2, e.name);
 					}
 			}
 		else
+			//2.不是宏，处理 Java 调用的syntax suger
 			{
 			if(op instanceof Symbol)
 				{
+				//2.1 如果是 symbol
 				Symbol sym = (Symbol) op;
+				//symbol名称，根据名称来判断类型
 				String sname = sym.name;
 				//(.substring s 2 5) => (. s substring 2 5)
+				
+				//2.1.1 类成员调用，方法，变量等。处理(.method target ...)的语法糖
 				if(sym.name.charAt(0) == '.')
 					{
 					if(RT.length(form) < 2)
 						throw new IllegalArgumentException(
 								"Malformed member expression, expecting (.member target ...)");
+					//method
 					Symbol meth = Symbol.intern(sname.substring(1));
+					//target对象
 					Object target = RT.second(form);
+					//target是 class 对象，加上tag: java.lang.Class
 					if(HostExpr.maybeClass(target, false) != null)
 						{
 						target = ((IObj)RT.list(IDENTITY, target)).withMeta(RT.map(RT.TAG_KEY,CLASS));
 						}
+					//转换成 (. target method ....) 新form，并且保留form的tag
 					return preserveTag(form, RT.listStar(DOT, target, meth, form.next().next()));
 					}
+				//2.1.2 可能是静态成员访问
 				else if(namesStaticMember(sym))
 					{
+					//目标对象
 					Symbol target = Symbol.intern(sym.ns);
+					//也许是 Class
 					Class c = HostExpr.maybeClass(target, false);
 					if(c != null)
 						{
 						Symbol meth = Symbol.intern(sym.name);
+						//转成(. target method ...)形式，并保留原始form的tag
 						return preserveTag(form, RT.listStar(DOT, target, meth, form.next()));
 						}
 					}
@@ -6694,7 +6791,9 @@ public static Object macroexpand1(Object x) {
 //						}
 					//(StringBuilder. "foo") => (new StringBuilder "foo")	
 					//else 
+					//如果句号是最后一个字符，形如(xxxxx.  ......) syntax suger调用，那么转成new调用。
 					if(idx == sname.length() - 1)
+						//转成(new xxxxx ......) 调用
 						return RT.listStar(NEW, Symbol.intern(sname.substring(0, idx)), form.next());
 					}
 				}
@@ -6702,7 +6801,11 @@ public static Object macroexpand1(Object x) {
 		}
 	return x;
 }
-
+/**
+ * 持续地展开form，直到没有多余的宏
+ * @param form
+ * @return
+ */
 static Object macroexpand(Object form) {
 	Object exf = macroexpand1(form);
 	if(exf != form)
@@ -6717,30 +6820,40 @@ private static Expr analyzeSeq(C context, ISeq form, String name) {
 		line = RT.meta(form).valAt(RT.LINE_KEY);
 	if(RT.meta(form) != null && RT.meta(form).containsKey(RT.COLUMN_KEY))
 		column = RT.meta(form).valAt(RT.COLUMN_KEY);
+	//获取行号和列号并入栈
 	Var.pushThreadBindings(
 			RT.map(LINE, line, COLUMN, column));
 	try
 		{
+		//macroexpand1，展开宏
 		Object me = macroexpand1(form);
+		//展开后跟原来不一样，需要重新分析，跳出
 		if(me != form)
 			return analyze(context, me, name);
-
+		//获取第一元素 (x y z..) 里的  x ，可能是函数、宏，或者special form
 		Object op = RT.first(form);
+		//如果x是nil，直接抛出异常
 		if(op == null)
 			throw new IllegalArgumentException("Can't call nil");
+		//判断op是不是 definline，需要不需要内联
 		IFn inline = isInline(op, RT.count(RT.next(form)));
+		//如果需要，那么inline进来，重新分析，跳出
 		if(inline != null)
 			return analyze(context, preserveTag(form, inline.applyTo(RT.next(form))));
 		IParser p;
+		//如果是 function，调用FnExpr.parse产生Expr
 		if(op.equals(FN))
 			return FnExpr.parse(context, form, name);
+		//如果是special form，调用对应的Parser
 		else if((p = (IParser) specials.valAt(op)) != null)
 			return p.parse(context, form);
+		//否则，可能是Java invocation调用。
 		else
 			return InvokeExpr.parse(context, form);
 		}
 	catch(Throwable e)
 		{
+		//编译异常，带上行号，列号
 		if(!(e instanceof CompilerException))
 			throw new CompilerException((String) SOURCE_PATH.deref(), lineDeref(), columnDeref(), e);
 		else
@@ -6844,28 +6957,40 @@ public static Object eval(Object form, boolean freshLoader) {
 }
 
 private static int registerConstant(Object o){
+	//常量池 binding 没有绑定，返回-1
 	if(!CONSTANTS.isBound())
 		return -1;
 	PersistentVector v = (PersistentVector) CONSTANTS.deref();
 	IdentityHashMap<Object,Integer> ids = (IdentityHashMap<Object,Integer>) CONSTANT_IDS.deref();
+	//已经在常量池注册，直接返回
 	Integer i = ids.get(o);
 	if(i != null)
 		return i;
+	//加入常量池
 	CONSTANTS.set(RT.conj(v, o));
+	//得到最新编号，常量池是 vector，逐步往后添加增长。
 	ids.put(o, v.count());
 	return v.count();
 }
-
+/**
+ * 注册keyword到 binding
+ * @param keyword
+ * @return
+ */
 private static KeywordExpr registerKeyword(Keyword keyword){
+	//如果当前没有任何 binding，直接返回 KeywordExpr
 	if(!KEYWORDS.isBound())
 		return new KeywordExpr(keyword);
 
+	//否则，注册keyword，并关联到 keywords binding
 	IPersistentMap keywordsMap = (IPersistentMap) KEYWORDS.deref();
 	Object id = RT.get(keywordsMap, keyword);
 	if(id == null)
 		{
+		//keyword分配常量编号
 		KEYWORDS.set(RT.assoc(keywordsMap, keyword, registerConstant(keyword)));
 		}
+	//最后返回 KeywordExpr
 	return new KeywordExpr(keyword);
 //	KeywordExpr ke = (KeywordExpr) RT.get(keywordsMap, keyword);
 //	if(ke == null)
