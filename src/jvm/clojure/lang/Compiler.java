@@ -17,6 +17,8 @@ package clojure.lang;
 import clojure.asm.*;
 import clojure.asm.commons.GeneratorAdapter;
 import clojure.asm.commons.Method;
+import clojure.asm.util.CheckClassAdapter;
+import clojure.asm.util.TraceClassVisitor;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -28,15 +30,17 @@ import java.util.regex.Matcher;
 //*/
 /*
 
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.Method;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
-import org.objectweb.asm.util.CheckClassAdapter;
+import clojure.asm.*;
+import clojure.asm.commons.Method;
+import clojure.asm.commons.GeneratorAdapter;
+
+import clojure.asm.util.CheckClassAdapter;
 //*/
 
 public class Compiler implements Opcodes{
-
+/**
+ * special form 列表，可以看到，fn其实是fn*, import其实是import* 等等。
+ */
 static final Symbol DEF = Symbol.intern("def");
 static final Symbol LOOP = Symbol.intern("loop*");
 static final Symbol RECUR = Symbol.intern("recur");
@@ -79,6 +83,7 @@ static final Symbol IDENTITY = Symbol.intern("clojure.core", "identity");
 
 static final Symbol _AMP_ = Symbol.intern("&");
 static final Symbol ISEQ = Symbol.intern("clojure.lang.ISeq");
+//一些元数据的 key 列表，如 inline,static等。
 //inline元数据的key
 static final Keyword inlineKey = Keyword.intern(null, "inline");
 //inline-arities元数据
@@ -105,38 +110,38 @@ static final Symbol IN_NS = Symbol.intern("in-ns");
 
 //所有的 specila form 都在这里定义了。,可以看到 clojure 的核心 form 是多么少。
 static final public IPersistentMap specials = PersistentHashMap.create(
-		DEF, new DefExpr.Parser(),
-		LOOP, new LetExpr.Parser(),
-		RECUR, new RecurExpr.Parser(),
-		IF, new IfExpr.Parser(),
-		CASE, new CaseExpr.Parser(),
-		LET, new LetExpr.Parser(),
-		LETFN, new LetFnExpr.Parser(),
-		DO, new BodyExpr.Parser(),
-		FN, null,
-		QUOTE, new ConstantExpr.Parser(),
-		THE_VAR, new TheVarExpr.Parser(),
-		IMPORT, new ImportExpr.Parser(),
-		DOT, new HostExpr.Parser(),
-		ASSIGN, new AssignExpr.Parser(),
-		DEFTYPE, new NewInstanceExpr.DeftypeParser(),
-		REIFY, new NewInstanceExpr.ReifyParser(),
+		DEF, new DefExpr.Parser(), //def
+		LOOP, new LetExpr.Parser(),  //loop 
+		RECUR, new RecurExpr.Parser(), //recur
+		IF, new IfExpr.Parser(),  //if
+		CASE, new CaseExpr.Parser(),  //case
+		LET, new LetExpr.Parser(),   //let
+		LETFN, new LetFnExpr.Parser(), //letfn
+		DO, new BodyExpr.Parser(),  //do
+		FN, null,   //fn
+		QUOTE, new ConstantExpr.Parser(), //quote
+		THE_VAR, new TheVarExpr.Parser(),  //var
+		IMPORT, new ImportExpr.Parser(),  //import
+		DOT, new HostExpr.Parser(),  // dot，句号
+		ASSIGN, new AssignExpr.Parser(), // set!
+		DEFTYPE, new NewInstanceExpr.DeftypeParser(), //deftype
+		REIFY, new NewInstanceExpr.ReifyParser(),  //reify
 //		TRY_FINALLY, new TryFinallyExpr.Parser(),
-TRY, new TryExpr.Parser(),
-THROW, new ThrowExpr.Parser(),
-MONITOR_ENTER, new MonitorEnterExpr.Parser(),
-MONITOR_EXIT, new MonitorExitExpr.Parser(),
+TRY, new TryExpr.Parser(),  //try
+THROW, new ThrowExpr.Parser(),  //throw
+MONITOR_ENTER, new MonitorEnterExpr.Parser(), //monitor-enter
+MONITOR_EXIT, new MonitorExitExpr.Parser(),  //monitor-exit
 //		INSTANCE, new InstanceExpr.Parser(),
 //		IDENTICAL, new IdenticalExpr.Parser(),
 //THISFN, null,
-CATCH, null,
-FINALLY, null,
+CATCH, null,  //catch
+FINALLY, null,  //finally
 //		CLASS, new ClassExpr.Parser(),
-NEW, new NewExpr.Parser(),
+NEW, new NewExpr.Parser(),  //new
 //		UNQUOTE, null,
 //		UNQUOTE_SPLICING, null,
 //		SYNTAX_QUOTE, null,
-_AMP_, null
+_AMP_, null  //&符号
 );
 
 private static final int MAX_POSITIONAL_ARITY = 20;
@@ -4210,9 +4215,9 @@ static public class ObjExpr implements Expr{
 		//derived from AFn/RestFn
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 //		ClassWriter cw = new ClassWriter(0);
-		ClassVisitor cv = cw;
+//		ClassVisitor cv = cw;
 //		ClassVisitor cv = new TraceClassVisitor(new CheckClassAdapter(cw), new PrintWriter(System.out));
-		//ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
+		ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
 		cv.visit(V1_5, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, internalName, null,superName,interfaceNames);
 //		         superName != null ? superName :
 //		         (isVariadic() ? "clojure/lang/RestFn" : "clojure/lang/AFunction"), null);
@@ -6839,6 +6844,7 @@ private static Expr analyzeSeq(C context, ISeq form, String name) {
 		IFn inline = isInline(op, RT.count(RT.next(form)));
 		//如果需要，那么inline进来，重新分析，跳出
 		if(inline != null)
+			//带上form的tag，重新分析
 			return analyze(context, preserveTag(form, inline.applyTo(RT.next(form))));
 		IParser p;
 		//如果是 function，调用FnExpr.parse产生Expr

@@ -5632,7 +5632,6 @@
 
   (require '(clojure zip [set :as s]))"
   {:added "1.0"}
-
   [& args]
   ;;require 是 委托给 load-libs 函数
   (apply load-libs :require args))
@@ -5645,7 +5644,7 @@
   'use accepts additional options in libspecs: :exclude, :only, :rename.
   The arguments and semantics for :exclude, :only, and :rename are the same
   as those documented for clojure.core/refer."
-  {:added "1.0"}'
+  {:added "1.0"}
   ;;同样 use 也是委托给 load-libs
   [& args] (apply load-libs :require :use args))
 
