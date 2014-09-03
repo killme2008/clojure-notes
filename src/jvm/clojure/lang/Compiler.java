@@ -260,11 +260,13 @@ static final public Var COMPILER_OPTIONS = Var.intern(Namespace.findOrCreate(Sym
 static public Object getCompilerOption(Keyword k){
 	return RT.get(COMPILER_OPTIONS.deref(),k);
 }
-
+//尊重 elide-meta 的编译选项，忽略这些元信息
 static Object elideMeta(Object m){
+	//获取编译选项 *compile-opitons* 里的 :elide-meta 信息
         Collection<Object> elides = (Collection<Object>) getCompilerOption(elideMetaKey);
         if(elides != null)
             {
+        	//遍历elides，去除指定的元信息
             for(Object k : elides)
                 {
 //                System.out.println("Eliding:" + k + " : " + RT.get(m, k));
@@ -411,16 +413,21 @@ static Symbol resolveSymbol(Symbol sym){
 	return null;
 
 }
-
+/**
+ * def 表达式 (def symbol doc-string? init?)
+ * @author dennis
+ *
+ */
 static class DefExpr implements Expr{
-	public final Var var;
-	public final Expr init;
-	public final Expr meta;
-	public final boolean initProvided;
-	public final boolean isDynamic;
-	public final String source;
-	public final int line;
-	public final int column;
+	public final Var var; //var
+	public final Expr init;  //初始值表达式
+	public final Expr meta;  //元信息表达式
+	public final boolean initProvided; //是否提供了初始值
+	public final boolean isDynamic;  //是否dynamic
+	public final String source;  //源码
+	public final int line;  //行
+	public final int column;  //列
+	//一些Var或和Symbol的方法引用，后面用到
 	final static Method bindRootMethod = Method.getMethod("void bindRoot(Object)");
 	final static Method setTagMethod = Method.getMethod("void setTag(clojure.lang.Symbol)");
 	final static Method setMetaMethod = Method.getMethod("void setMeta(clojure.lang.IPersistentMap)");
@@ -451,6 +458,9 @@ static class DefExpr implements Expr{
         return false;
     }
 
+    /**
+     * 对DefExpr求值
+     */
     public Object eval() {
 		try
 			{
@@ -459,14 +469,17 @@ static class DefExpr implements Expr{
 //			if(init instanceof FnExpr && ((FnExpr) init).closes.count()==0)
 //				var.bindRoot(new FnLoaderThunk((FnExpr) init,var));
 //			else
+				//如果提供了初始值，将初始值绑定到Var，作为root binding
 				var.bindRoot(init.eval());
 				}
 			if(meta != null)
 				{
+				//设置元信息，元信息表达式需要求值
                 IPersistentMap metaMap = (IPersistentMap) meta.eval();
                 if (initProvided || true)//includesExplicitMetadata((MapExpr) meta))
 				    var.setMeta((IPersistentMap) meta.eval());
 				}
+			//返回var，设定是否dynamic
 			return var.setDynamic(isDynamic);
 			}
 		catch(Throwable e)
@@ -478,35 +491,49 @@ static class DefExpr implements Expr{
 			}
 	}
 
+    //生成字节码，基本上是 eval 的翻版。
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//先将var对象入栈
 		objx.emitVar(gen, var);
+		//设置dynamic
 		if(isDynamic)
 			{
+			//调用Var.setDynamic(dynamic)方法，同时压入返回值var
 			gen.push(isDynamic);
 			gen.invokeVirtual(VAR_TYPE, setDynamicMethod);
 			}
+		//设置元信息
 		if(meta != null)
 			{
             if (initProvided || true)//includesExplicitMetadata((MapExpr) meta))
                 {
+            	//复制一份var引用
                 gen.dup();
+                //压入meta
                 meta.emit(C.EXPRESSION, objx, gen);
+                //转成IPersistentMap
                 gen.checkCast(IPERSISTENTMAP_TYPE);
+                //调用setMeta，设置元信息，没有返回值，这就是为什么前面要调用dup指令复制的原因。不然到这一步，栈将为空。
                 gen.invokeVirtual(VAR_TYPE, setMetaMethod);
                 }
 			}
+		//设置初始值
 		if(initProvided)
 			{
+			//同样复制var
 			gen.dup();
+			//压入初始值
 			if(init instanceof FnExpr)
 				{
 				((FnExpr)init).emitForDefn(objx, gen);
 				}
 			else
 				init.emit(C.EXPRESSION, objx, gen);
+			//调用Var.bindRoot，返回值也是void，同上
 			gen.invokeVirtual(VAR_TYPE, bindRootMethod);
 			}
-
+		//到这一步，栈上至少有一个var存在
+		//如果是statement，不需要返回值，就可以弹出去了。
 		if(context == C.STATEMENT)
 			gen.pop();
 	}
@@ -515,47 +542,65 @@ static class DefExpr implements Expr{
 		return true;
 	}
 
+	//def返回的是一个Var，所以他的java class是Var.class
 	public Class getJavaClass(){
 		return Var.class;
 	}
-
+	/**
+	 * def 表达式parser
+	 * @author dennis
+	 *
+	 */
 	static class Parser implements IParser{
 		public Expr parse(C context, Object form) {
 			//(def x) or (def x initexpr) or (def x "docstring" initexpr)
 			String docstring = null;
+			//如果是4个元素版本，第三个是 docstring，取出来，简化form到三个元素版本。
 			if(RT.count(form) == 4 && (RT.third(form) instanceof String)) {
 				docstring = (String) RT.third(form);
 				form = RT.list(RT.first(form), RT.second(form), RT.fourth(form));
 			}
+			//简化后，或者不需要简化，还超过3个元素，抛出异常
 			if(RT.count(form) > 3)
 				throw Util.runtimeException("Too many arguments to def");
+			//小于两个元素 (def x)，抛出异常
 			else if(RT.count(form) < 2)
 				throw Util.runtimeException("Too few arguments to def");
+			//如果x不是symbol，抛出异常
 			else if(!(RT.second(form) instanceof Symbol))
 					throw Util.runtimeException("First argument to def must be a Symbol");
 			Symbol sym = (Symbol) RT.second(form);
+			//根据symbol，找到var，如果不存在要intern
 			Var v = lookupVar(sym, true);
 			if(v == null)
 				throw Util.runtimeException("Can't refer to qualified var that doesn't exist");
+			//非当前ns
 			if(!v.ns.equals(currentNS()))
 				{
+				//如果 sym.ns 是null，intern到当前ns
 				if(sym.ns == null)
 					v = currentNS().intern(sym);
 //					throw Util.runtimeException("Name conflict, can't def " + sym + " because namespace: " + currentNS().name +
 //					                    " refers to:" + v);
 				else
+					//不允许定义非当前ns之外的var，比如(def clojure.core/in-ns 3)
 					throw Util.runtimeException("Can't create defs outside of current ns");
 				}
+			//获取symbol的meta信息
 			IPersistentMap mm = sym.meta();
+			//判断是否是dynamic
 			boolean isDynamic = RT.booleanCast(RT.get(mm,dynamicKey));
 			if(isDynamic)
+				//设置var为dynamic
 			   v.setDynamic();
+			//非dynamic变量，不要 *xxx* 这样命名
             if(!isDynamic && sym.name.startsWith("*") && sym.name.endsWith("*") && sym.name.length() > 2)
                 {
                 RT.errPrintWriter().format("Warning: %1$s not declared dynamic and thus is not dynamically rebindable, "
                                           +"but its name suggests otherwise. Please either indicate ^:dynamic %1$s or change the name. (%2$s:%3$d)\n",
                                            sym, SOURCE_PATH.get(), LINE.get());
                 }
+            //处理arglists元信息，关联到var上
 			if(RT.booleanCast(RT.get(mm, arglistsKey)))
 				{
 				IPersistentMap vm = v.meta();
@@ -564,10 +609,13 @@ static class DefExpr implements Expr{
 				vm = (IPersistentMap) RT.assoc(vm,arglistsKey,RT.second(mm.valAt(arglistsKey)));
 				v.setMeta(vm);
 				}
+			//获取源码路径
             Object source_path = SOURCE_PATH.get();
             source_path = source_path == null ? "NO_SOURCE_FILE" : source_path;
+            //保存源码信息到meta
             mm = (IPersistentMap) RT.assoc(mm, RT.LINE_KEY, LINE.get()).assoc(RT.COLUMN_KEY, COLUMN.get()).assoc(RT.FILE_KEY, source_path);
 			if (docstring != null)
+				//放入doc元信息
 			  mm = (IPersistentMap) RT.assoc(mm, RT.DOC_KEY, docstring);
 //			mm = mm.without(RT.DOC_KEY)
 //					.without(Keyword.intern(null, "arglists"))
@@ -578,8 +626,12 @@ static class DefExpr implements Expr{
 //					.without(Keyword.intern(null, "name"))
 //					.without(Keyword.intern(null, "added"))
 //					.without(Keyword.intern(null, "static"));
+			//尊重 elide-meta 的编译选项
             mm = (IPersistentMap) elideMeta(mm);
+            //元信息也要经过analyze，变成Expr
 			Expr meta = mm.count()==0 ? null:analyze(context == C.EVAL ? context : C.EXPRESSION, mm);
+			//返回DefExpr，通过判断是不是三元form来表示isProvided是否提供初始值
+			// init expr 也需要analyze
 			return new DefExpr((String) SOURCE.deref(), lineDeref(), columnDeref(),
 			                   v, analyze(context == C.EVAL ? context : C.EXPRESSION, RT.third(form), v.sym.name),
 			                   meta, RT.count(form) == 3, isDynamic);
@@ -6961,7 +7013,11 @@ public static Object eval(Object form, boolean freshLoader) {
 			Var.popThreadBindings();
 		}
 }
-
+/**
+ * 注册对象到常量池，分配一个编号
+ * @param o
+ * @return
+ */
 private static int registerConstant(Object o){
 	//常量池 binding 没有绑定，返回-1
 	if(!CONSTANTS.isBound())
@@ -7237,54 +7293,79 @@ static public Object maybeResolveIn(Namespace n, Symbol sym) {
 				}
 }
 
-
+/**
+ * 根据symbol查找var
+ * @param sym
+ * @param internNew
+ * @param registerMacro
+ * @return
+ */
 static Var lookupVar(Symbol sym, boolean internNew, boolean registerMacro) {
 	Var var = null;
-
+	//ns-qualified var，需要确保存在
 	//note - ns-qualified vars in other namespaces must already exist
 	if(sym.ns != null)
 		{
 		Namespace ns = namespaceFor(sym);
+		//ns不存在返回null
 		if(ns == null)
 			return null;
 		//throw Util.runtimeException("No such namespace: " + sym.ns);
 		Symbol name = Symbol.intern(sym.name);
+		//如果是当前ns，并且需要intern，那么intern到当前ns
 		if(internNew && ns == currentNS())
 			var = currentNS().intern(name);
 		else
+			//否则，尝试查找ns下是否存在
 			var = ns.findInternedVar(name);
 		}
+	//ns 函数，返回clojure.core/ns
 	else if(sym.equals(NS))
 		var = RT.NS_VAR;
+	//in-ns 函数，返回clojure.core/in-ns
 	else if(sym.equals(IN_NS))
 			var = RT.IN_NS_VAR;
 		else
 			{
 			//is it mapped?
+			//是否映射到当前ns
 			Object o = currentNS().getMapping(sym);
 			if(o == null)
 				{
+				//没有映射，intern到当前ns
 				//introduce a new var in the current ns
 				if(internNew)
 					var = currentNS().intern(Symbol.intern(sym.name));
 					}
 			else if(o instanceof Var)
 				{
+				//映射了，返回
 				var = (Var) o;
 				}
 			else
 				{
+				//映射了，但是不是var，抛出异常
 				throw Util.runtimeException("Expecting var, but " + sym + " is mapped to " + o);
 				}
 			}
+	//是否需要注册
 	if(var != null && (!var.isMacro() || registerMacro))
 		registerVar(var);
 	return var;
 }
+/**
+ * 根据symbol查找var
+ * @param sym
+ * @param internNew
+ * @return
+ */
 static Var lookupVar(Symbol sym, boolean internNew) {
     return lookupVar(sym, internNew, true);
 }
-
+/**
+ * 注册var，给它一个编号
+ * @param var
+ */
 private static void registerVar(Var var) {
 	if(!VARS.isBound())
 		return;
