@@ -1,0 +1,2060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.4" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" language="java" name="clojure.lang.Compiler.InstanceMethodExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="442" x="3916" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="2" language="java" name="clojure.lang.Compiler.AssignableExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="96" width="324" x="8024" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="3" language="java" name="clojure.lang.Compiler.HostExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="4979" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="clojure.lang.Compiler.LetFnExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="4207" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="clojure.lang.Compiler.ListExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="1246" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="clojure.lang.Compiler.NewExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="7447" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="clojure.lang.Compiler" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="106" x="5799" y="37"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="clojure.lang.Compiler.TheVarExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="7075" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="clojure.lang.Compiler.InstanceOfExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="307" x="2673" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="clojure.lang.Compiler.CaseExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="204" width="827" x="4888" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="clojure.lang.Compiler.StringExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="132" width="255" x="5502" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="clojure.lang.Compiler.LetExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="4229" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="13" language="java" name="clojure.lang.Compiler.PSTATE" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="149" x="42" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="14" language="java" name="clojure.lang.Compiler.SetExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="1541" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="clojure.lang.Compiler.PathNode" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="106" x="7847" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="16" language="java" name="clojure.lang.Compiler.Expr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="132" width="255" x="4104" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="17" language="java" name="clojure.lang.Compiler.RecurExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="1689" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="clojure.lang.Compiler.MonitorExitExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="6016" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="clojure.lang.Compiler.TryExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="273" x="3582" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="clojure.lang.Compiler.AssignExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="5461" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="clojure.lang.Compiler.NewInstanceExpr.ReifyParser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="8058" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="22" language="java" name="clojure.lang.Compiler.BindingInit" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="201" x="6144" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="23" language="java" name="clojure.lang.Compiler.IfExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="204" width="320" x="2208" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="24" language="java" name="clojure.lang.Compiler.MonitorEnterExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="255" x="6300" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="25" language="java" name="clojure.lang.Compiler.ObjExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="474" width="381" x="6563" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="26" language="java" name="clojure.lang.Compiler.LiteralExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="96" width="106" x="5335" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="27" language="java" name="clojure.lang.Compiler.NewExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="256" x="7665" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="28" language="java" name="clojure.lang.Compiler.FnMethod" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="254" x="6772" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="29" language="java" name="clojure.lang.Compiler.InstanceFieldExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="222" width="336" x="5988" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="30" language="java" name="clojure.lang.Compiler.Recur" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="106" x="231" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="31" language="java" name="clojure.lang.Compiler.NilExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="255" x="5165" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="32" language="java" name="clojure.lang.Compiler.PATHTYPE" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="149" x="8620" y="1881"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="33" language="java" name="clojure.lang.Compiler.MonitorEnterExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="6202" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="34" language="java" name="clojure.lang.Compiler.RecurExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="370" x="978" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="35" language="java" name="clojure.lang.Compiler.CaseExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="5632" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="36" language="java" name="clojure.lang.Compiler.StaticFieldExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="222" width="324" x="7026" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="37" language="java" name="clojure.lang.Compiler.NewInstanceExpr.DeftypeParser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="8244" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="38" language="java" name="clojure.lang.Compiler.TryExpr.CatchClause" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="244" x="4607" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="39" language="java" name="clojure.lang.Compiler.NumberExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="168" width="307" x="3622" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="40" language="java" name="clojure.lang.Compiler.KeywordInvokeExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="378" x="1836" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="41" language="java" name="clojure.lang.Compiler.MetaExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="3786" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="42" language="java" name="clojure.lang.Compiler.UntypedExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="159" x="5902" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="43" language="java" name="clojure.lang.Compiler.FnExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="168" width="289" x="6676" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="44" language="java" name="clojure.lang.Compiler.MapExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="2275" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="45" language="java" name="clojure.lang.Compiler.StaticMethodExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="222" width="429" x="4419" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="46" language="java" name="clojure.lang.Compiler.LocalBindingExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="222" width="324" x="6408" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="47" language="java" name="clojure.lang.Compiler.IfExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="2506" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="48" language="java" name="clojure.lang.Compiler.MethodParamExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="307" x="4988" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="49" language="java" name="clojure.lang.Compiler.LetExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="204" width="320" x="4628" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="50" language="java" name="clojure.lang.Compiler.MaybePrimitiveExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="96" width="307" x="2673" y="1881"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="51" language="java" name="clojure.lang.Compiler.ImportExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="7261" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="52" language="java" name="clojure.lang.Compiler.MonitorExitExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="255" x="5984" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="53" language="java" name="clojure.lang.Compiler.HostExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="106" x="4252" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="54" language="java" name="clojure.lang.Compiler.EmptyExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="2570" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="55" language="java" name="clojure.lang.Compiler.LetFnExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="4022" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="56" language="java" name="clojure.lang.Compiler.ConstantExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="132" width="255" x="6069" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="57" language="java" name="clojure.lang.Compiler.IParser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="6040" y="1881"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="58" language="java" name="clojure.lang.Compiler.DefExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="3918" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <enumeration id="59" language="java" name="clojure.lang.Compiler.C" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="149" x="377" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </enumeration>  
+  <class id="60" language="java" name="clojure.lang.Compiler.CompilerException" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="96" width="282" x="566" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="61" language="java" name="clojure.lang.Compiler.ObjMethod" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="222" width="214" x="6523" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="62" language="java" name="clojure.lang.Compiler.KeywordExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="2235" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="63" language="java" name="clojure.lang.Compiler.SourceDebugExtensionAttribute" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="255" x="888" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="64" language="java" name="clojure.lang.Compiler.VectorExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="2865" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="65" language="java" name="clojure.lang.Compiler.ThrowExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="114" width="255" x="5689" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="66" language="java" name="clojure.lang.Compiler.BodyExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="1896" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="67" language="java" name="clojure.lang.Compiler.FieldExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="106" x="5881" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="68" language="java" name="clojure.lang.Compiler.ThrowExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="5830" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="69" language="java" name="clojure.lang.Compiler.ConstantExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="6448" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="70" language="java" name="clojure.lang.Compiler.StaticInvokeExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="168" width="307" x="1735" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="71" language="java" name="clojure.lang.Compiler.InvokeExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="168" width="349" x="3397" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="72" language="java" name="clojure.lang.Compiler.NewInstanceMethod" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="96" width="266" x="7047" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="73" language="java" name="clojure.lang.Compiler.NewInstanceExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="172" x="7777" y="941"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="74" language="java" name="clojure.lang.Compiler.UnresolvedVarExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="3160" y="155"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="75" language="java" name="clojure.lang.Compiler.VarExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="186" width="324" x="7392" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="76" language="java" name="clojure.lang.Compiler.BooleanExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="132" width="255" x="8493" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="77" language="java" name="clojure.lang.Compiler.MethodExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="60" width="111" x="4212" y="427"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="78" language="java" name="clojure.lang.Compiler.TryExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="4165" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="79" language="java" name="clojure.lang.Compiler.AssignExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="5337" y="1203"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="80" language="java" name="clojure.lang.Compiler.TheVarExpr.Parser" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="78" width="146" x="7075" y="1709"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="81" language="java" name="clojure.lang.Compiler.ImportExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="255" x="7370" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="82" language="java" name="clojure.lang.Compiler.BodyExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="204" width="307" x="1388" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="83" language="java" name="clojure.lang.Compiler.DefExpr" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="150" width="337" x="3020" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="84" language="java" name="clojure.lang.Compiler.LocalBinding" project="clojure-notes" 
+    file="/clojure-notes/src/jvm/clojure/lang/Compiler.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="132" width="356" x="6658" y="1465"/>    
+    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="false" accessors="true" 
+      visibility="false">      
+      <attributes public="false" package="false" protected="false" private="false" static="false"/>      
+      <operations public="true" package="false" protected="true" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <nesting id="85">    
+    <end type="SOURCE" refId="81"/>    
+    <end type="TARGET" refId="51"/>  
+  </nesting>  
+  <realization id="86">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="87">    
+    <end type="SOURCE" refId="65" navigable="false">      
+      <attribute id="88" name="excExpr"/>      
+      <multiplicity id="89" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="90">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="40"/>  
+  </nesting>  
+  <nesting id="91">    
+    <bendpoint x="5829" y="155"/>    
+    <bendpoint x="5829" y="427"/>    
+    <bendpoint x="5850" y="941"/>    
+    <bendpoint x="5850" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="65"/>  
+  </nesting>  
+  <nesting id="92">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="74"/>  
+  </nesting>  
+  <nesting id="93">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="64"/>  
+  </nesting>  
+  <association id="94">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="95" name="elseExpr"/>      
+      <multiplicity id="96" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="97">    
+    <bendpoint x="7746" y="155"/>    
+    <bendpoint x="7746" y="427"/>    
+    <bendpoint x="7746" y="941"/>    
+    <bendpoint x="7746" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="81"/>  
+  </nesting>  
+  <association id="98">    
+    <bendpoint x="7951" y="1465"/>    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="99" name="clearRoot"/>      
+      <multiplicity id="100" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="101">    
+    <bendpoint x="6354" y="155"/>    
+    <bendpoint x="6354" y="427"/>    
+    <bendpoint x="6354" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="22"/>  
+  </nesting>  
+  <association id="102">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="103" name="testExpr"/>      
+      <multiplicity id="104" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="105">    
+    <bendpoint x="7972" y="1465"/>    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="106" name="clearPath"/>      
+      <multiplicity id="107" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="108">    
+    <end type="SOURCE" refId="52"/>    
+    <end type="TARGET" refId="42"/>  
+  </generalization>  
+  <realization id="109">    
+    <bendpoint x="2600" y="427"/>    
+    <bendpoint x="2600" y="941"/>    
+    <bendpoint x="2600" y="1203"/>    
+    <bendpoint x="2600" y="1465"/>    
+    <end type="SOURCE" refId="64"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="110">    
+    <end type="SOURCE" refId="49" navigable="false">      
+      <attribute id="111" name="body"/>      
+      <multiplicity id="112" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="113">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="114" name="body"/>      
+      <multiplicity id="115" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="116">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="13"/>  
+  </nesting>  
+  <nesting id="117">    
+    <bendpoint x="7016" y="155"/>    
+    <bendpoint x="7016" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="36"/>  
+  </nesting>  
+  <realization id="118">    
+    <end type="SOURCE" refId="71"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="119">    
+    <bendpoint x="2449" y="1709"/>    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <generalization id="120">    
+    <end type="SOURCE" refId="29"/>    
+    <end type="TARGET" refId="67"/>  
+  </generalization>  
+  <realization id="121">    
+    <bendpoint x="1637" y="1709"/>    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <realization id="122">    
+    <bendpoint x="5306" y="1203"/>    
+    <bendpoint x="5409" y="1465"/>    
+    <bendpoint x="5409" y="1709"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <association id="123">    
+    <end type="SOURCE" refId="28" navigable="false">      
+      <attribute id="124" name="restParm"/>      
+      <multiplicity id="125" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="84" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="126">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <nesting id="127">    
+    <bendpoint x="8420" y="155"/>    
+    <bendpoint x="8420" y="427"/>    
+    <bendpoint x="8420" y="941"/>    
+    <bendpoint x="8420" y="1203"/>    
+    <bendpoint x="8441" y="1465"/>    
+    <bendpoint x="8378" y="1709"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="50"/>  
+  </nesting>  
+  <realization id="128">    
+    <bendpoint x="6606" y="1465"/>    
+    <end type="SOURCE" refId="75"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="129">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="130" name="parent"/>      
+      <multiplicity id="131" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="132">    
+    <bendpoint x="6017" y="155"/>    
+    <bendpoint x="6017" y="427"/>    
+    <bendpoint x="5957" y="941"/>    
+    <bendpoint x="6091" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="52"/>  
+  </nesting>  
+  <association id="133">    
+    <end type="SOURCE" refId="61" navigable="false">      
+      <attribute id="134" name="objx"/>      
+      <multiplicity id="135" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="25" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="136">    
+    <end type="SOURCE" refId="72"/>    
+    <end type="TARGET" refId="61"/>  
+  </generalization>  
+  <realization id="137">    
+    <bendpoint x="7361" y="1203"/>    
+    <bendpoint x="7993" y="1465"/>    
+    <bendpoint x="7993" y="1709"/>    
+    <end type="SOURCE" refId="69"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="138">    
+    <end type="SOURCE" refId="81"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="139">    
+    <end type="SOURCE" refId="49"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="140">    
+    <bendpoint x="7401" y="155"/>    
+    <bendpoint x="7401" y="427"/>    
+    <bendpoint x="7401" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="75"/>  
+  </nesting>  
+  <nesting id="141">    
+    <bendpoint x="1215" y="155"/>    
+    <bendpoint x="1215" y="427"/>    
+    <bendpoint x="1215" y="941"/>    
+    <bendpoint x="1215" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="70"/>  
+  </nesting>  
+  <nesting id="142">    
+    <bendpoint x="4948" y="155"/>    
+    <bendpoint x="4948" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="10"/>  
+  </nesting>  
+  <association id="143">    
+    <bendpoint x="5325" y="1465"/>    
+    <end type="SOURCE" refId="79" navigable="false">      
+      <attribute id="144" name="val"/>      
+      <multiplicity id="145" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="146">    
+    <bendpoint x="6038" y="155"/>    
+    <bendpoint x="6038" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="29"/>  
+  </nesting>  
+  <realization id="147">    
+    <bendpoint x="2621" y="427"/>    
+    <bendpoint x="2621" y="941"/>    
+    <bendpoint x="2621" y="1203"/>    
+    <bendpoint x="2621" y="1465"/>    
+    <end type="SOURCE" refId="74"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <generalization id="148">    
+    <end type="SOURCE" refId="62"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <realization id="149">    
+    <bendpoint x="2093" y="427"/>    
+    <bendpoint x="2093" y="941"/>    
+    <bendpoint x="2093" y="1203"/>    
+    <bendpoint x="2093" y="1465"/>    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="150">    
+    <bendpoint x="7044" y="1465"/>    
+    <bendpoint x="7044" y="1709"/>    
+    <end type="SOURCE" refId="46"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <realization id="151">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="152">    
+    <end type="SOURCE" refId="33"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="153">    
+    <bendpoint x="8778" y="155"/>    
+    <bendpoint x="8778" y="427"/>    
+    <bendpoint x="8778" y="941"/>    
+    <bendpoint x="8778" y="1203"/>    
+    <bendpoint x="8778" y="1465"/>    
+    <bendpoint x="8778" y="1709"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="32"/>  
+  </nesting>  
+  <association id="154">    
+    <bendpoint x="4492" y="1203"/>    
+    <bendpoint x="4492" y="1465"/>    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="155" name="thens"/>      
+      <multiplicity id="156" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="157">    
+    <bendpoint x="5658" y="1465"/>    
+    <bendpoint x="5658" y="1709"/>    
+    <end type="SOURCE" refId="35"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <association id="158">    
+    <end type="SOURCE" refId="84" navigable="false">      
+      <attribute id="159" name="init"/>      
+      <multiplicity id="160" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="161">    
+    <bendpoint x="5637" y="1709"/>    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="162">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="163">    
+    <end type="SOURCE" refId="83"/>    
+    <end type="TARGET" refId="58"/>  
+  </nesting>  
+  <nesting id="164">    
+    <bendpoint x="1194" y="155"/>    
+    <bendpoint x="1194" y="427"/>    
+    <bendpoint x="1194" y="941"/>    
+    <bendpoint x="1194" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="82"/>  
+  </nesting>  
+  <realization id="165">    
+    <bendpoint x="1658" y="1709"/>    
+    <end type="SOURCE" refId="82"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <realization id="166">    
+    <end type="SOURCE" refId="82"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="167">    
+    <bendpoint x="2114" y="427"/>    
+    <bendpoint x="2114" y="941"/>    
+    <bendpoint x="2114" y="1203"/>    
+    <bendpoint x="2114" y="1465"/>    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="168">    
+    <bendpoint x="2156" y="427"/>    
+    <bendpoint x="2156" y="941"/>    
+    <bendpoint x="2156" y="1203"/>    
+    <bendpoint x="2156" y="1465"/>    
+    <end type="SOURCE" refId="40"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="169">    
+    <bendpoint x="4176" y="1465"/>    
+    <bendpoint x="4389" y="1709"/>    
+    <end type="SOURCE" refId="78"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="170">    
+    <bendpoint x="1865" y="1709"/>    
+    <end type="SOURCE" refId="70"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <nesting id="171">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="44"/>  
+  </nesting>  
+  <nesting id="172">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="53"/>  
+  </nesting>  
+  <association id="173">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="174" name="thenExpr"/>      
+      <multiplicity id="175" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="176">    
+    <bendpoint x="4534" y="1203"/>    
+    <bendpoint x="4534" y="1465"/>    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="177" name="tests"/>      
+      <multiplicity id="178" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="179">    
+    <bendpoint x="8525" y="155"/>    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="180" name="TRUE_EXPR"/>      
+      <multiplicity id="181" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="76" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="182">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="61"/>  
+  </nesting>  
+  <nesting id="183">    
+    <end type="SOURCE" refId="53"/>    
+    <end type="TARGET" refId="3"/>  
+  </nesting>  
+  <association id="184">    
+    <bendpoint x="4071" y="1203"/>    
+    <bendpoint x="4071" y="1465"/>    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="185" name="tryExpr"/>      
+      <multiplicity id="186" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="187">    
+    <bendpoint x="8399" y="1465"/>    
+    <bendpoint x="8399" y="1709"/>    
+    <end type="SOURCE" refId="21"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <association id="188">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="189" name="binding"/>      
+      <multiplicity id="190" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="84" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="191">    
+    <end type="SOURCE" refId="45"/>    
+    <end type="TARGET" refId="77"/>  
+  </generalization>  
+  <nesting id="192">    
+    <bendpoint x="6396" y="155"/>    
+    <bendpoint x="6396" y="427"/>    
+    <bendpoint x="6375" y="941"/>    
+    <bendpoint x="6375" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="24"/>  
+  </nesting>  
+  <association id="193">    
+    <bendpoint x="6269" y="1465"/>    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="194" name="init"/>      
+      <multiplicity id="195" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="196">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="30"/>  
+  </nesting>  
+  <nesting id="197">    
+    <bendpoint x="4221" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="77"/>  
+  </nesting>  
+  <association id="198">    
+    <bendpoint x="6375" y="427"/>    
+    <bendpoint x="5936" y="941"/>    
+    <bendpoint x="5808" y="1203"/>    
+    <bendpoint x="5367" y="1465"/>    
+    <end type="SOURCE" refId="61" navigable="false">      
+      <attribute id="199" name="body"/>      
+      <multiplicity id="200" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="201">    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="17"/>  
+  </nesting>  
+  <generalization id="202">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="77"/>  
+  </generalization>  
+  <nesting id="203">    
+    <bendpoint x="3487" y="155"/>    
+    <bendpoint x="3477" y="427"/>    
+    <bendpoint x="3467" y="941"/>    
+    <bendpoint x="3467" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="71"/>  
+  </nesting>  
+  <realization id="204">    
+    <bendpoint x="4092" y="1203"/>    
+    <bendpoint x="4092" y="1465"/>    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="205">    
+    <bendpoint x="5450" y="427"/>    
+    <bendpoint x="5745" y="941"/>    
+    <bendpoint x="4576" y="1203"/>    
+    <bendpoint x="4576" y="1465"/>    
+    <end type="SOURCE" refId="26"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="206">    
+    <end type="SOURCE" refId="65"/>    
+    <end type="TARGET" refId="68"/>  
+  </nesting>  
+  <nesting id="207">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="14"/>  
+  </nesting>  
+  <association id="208">    
+    <bendpoint x="4113" y="1203"/>    
+    <bendpoint x="4113" y="1465"/>    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="209" name="finallyExpr"/>      
+      <multiplicity id="210" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="211">    
+    <bendpoint x="4405" y="1709"/>    
+    <end type="SOURCE" refId="48"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <association id="212">    
+    <end type="SOURCE" refId="61" navigable="false">      
+      <attribute id="213" name="parent"/>      
+      <multiplicity id="214" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="61" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="215">    
+    <bendpoint x="3959" y="155"/>    
+    <bendpoint x="3959" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="1"/>  
+  </nesting>  
+  <realization id="216">    
+    <bendpoint x="2579" y="427"/>    
+    <bendpoint x="2579" y="941"/>    
+    <bendpoint x="2579" y="1203"/>    
+    <bendpoint x="2579" y="1465"/>    
+    <end type="SOURCE" refId="54"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="217">    
+    <end type="SOURCE" refId="70"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="218">    
+    <bendpoint x="1173" y="155"/>    
+    <bendpoint x="1173" y="427"/>    
+    <bendpoint x="1173" y="941"/>    
+    <bendpoint x="1173" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="34"/>  
+  </nesting>  
+  <association id="219">    
+    <end type="SOURCE" refId="46" navigable="false">      
+      <attribute id="220" name="b"/>      
+      <multiplicity id="221" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="84" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="222">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="78"/>  
+  </nesting>  
+  <realization id="223">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <generalization id="224">    
+    <end type="SOURCE" refId="65"/>    
+    <end type="TARGET" refId="42"/>  
+  </generalization>  
+  <association id="225">    
+    <end type="SOURCE" refId="52" navigable="false">      
+      <attribute id="226" name="target"/>      
+      <multiplicity id="227" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="228">    
+    <bendpoint x="3549" y="427"/>    
+    <bendpoint x="3043" y="941"/>    
+    <bendpoint x="2537" y="1203"/>    
+    <bendpoint x="2072" y="1465"/>    
+    <bendpoint x="2072" y="1709"/>    
+    <end type="SOURCE" refId="53"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <realization id="229">    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="230">    
+    <bendpoint x="5808" y="155"/>    
+    <bendpoint x="5808" y="427"/>    
+    <bendpoint x="5808" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="79"/>  
+  </nesting>  
+  <realization id="231">    
+    <bendpoint x="5346" y="1465"/>    
+    <end type="SOURCE" refId="79"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="232">    
+    <end type="SOURCE" refId="83" navigable="false">      
+      <attribute id="233" name="meta"/>      
+      <multiplicity id="234" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="235">    
+    <end type="SOURCE" refId="24"/>    
+    <end type="TARGET" refId="33"/>  
+  </nesting>  
+  <realization id="236">    
+    <end type="SOURCE" refId="75"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <association id="237">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="238" name="expr"/>      
+      <multiplicity id="239" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="46" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="240">    
+    <end type="SOURCE" refId="80"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="241">    
+    <bendpoint x="3529" y="155"/>    
+    <bendpoint x="3528" y="427"/>    
+    <bendpoint x="3530" y="941"/>    
+    <bendpoint x="3530" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="9"/>  
+  </nesting>  
+  <nesting id="242">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <nesting id="243">    
+    <bendpoint x="8441" y="155"/>    
+    <bendpoint x="8441" y="427"/>    
+    <bendpoint x="8441" y="941"/>    
+    <bendpoint x="8441" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="2"/>  
+  </nesting>  
+  <association id="244">    
+    <bendpoint x="5283" y="155"/>    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="245" name="NIL_EXPR"/>      
+      <multiplicity id="246" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="31" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="247">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="38"/>  
+  </nesting>  
+  <nesting id="248">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="60"/>  
+  </nesting>  
+  <association id="249">    
+    <end type="SOURCE" refId="38" navigable="false">      
+      <attribute id="250" name="lb"/>      
+      <multiplicity id="251" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="84" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="252">    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="253" name="type"/>      
+      <multiplicity id="254" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="32" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="255">    
+    <bendpoint x="2558" y="427"/>    
+    <bendpoint x="2558" y="941"/>    
+    <bendpoint x="2558" y="1203"/>    
+    <bendpoint x="2558" y="1465"/>    
+    <end type="SOURCE" refId="44"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="256">    
+    <end type="SOURCE" refId="41"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="257">    
+    <bendpoint x="3980" y="427"/>    
+    <bendpoint x="3885" y="941"/>    
+    <bendpoint x="4134" y="1203"/>    
+    <bendpoint x="4134" y="1465"/>    
+    <end type="SOURCE" refId="53"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="258">    
+    <bendpoint x="4341" y="1203"/>    
+    <bendpoint x="4155" y="1465"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="259" name="target"/>      
+      <multiplicity id="260" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="261">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="35"/>  
+  </nesting>  
+  <nesting id="262">    
+    <bendpoint x="6777" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="25"/>  
+  </nesting>  
+  <association id="263">    
+    <end type="SOURCE" refId="40" navigable="false">      
+      <attribute id="264" name="kw"/>      
+      <multiplicity id="265" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="62" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="266">    
+    <end type="SOURCE" refId="84" navigable="false">      
+      <attribute id="267" name="clearPathRoot"/>      
+      <multiplicity id="268" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="15" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="269">    
+    <bendpoint x="3938" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="39"/>  
+  </nesting>  
+  <generalization id="270">    
+    <end type="SOURCE" refId="39"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <realization id="271">    
+    <end type="SOURCE" refId="83"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="272">    
+    <end type="SOURCE" refId="73"/>    
+    <end type="TARGET" refId="37"/>  
+  </nesting>  
+  <realization id="273">    
+    <bendpoint x="2682" y="1709"/>    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <nesting id="274">    
+    <bendpoint x="7380" y="155"/>    
+    <bendpoint x="7380" y="427"/>    
+    <bendpoint x="7380" y="941"/>    
+    <bendpoint x="7340" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="84"/>  
+  </nesting>  
+  <generalization id="275">    
+    <end type="SOURCE" refId="43"/>    
+    <end type="TARGET" refId="25"/>  
+  </generalization>  
+  <nesting id="276">    
+    <bendpoint x="5659" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="11"/>  
+  </nesting>  
+  <nesting id="277">    
+    <bendpoint x="4927" y="155"/>    
+    <bendpoint x="4927" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="45"/>  
+  </nesting>  
+  <realization id="278">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="279">    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <generalization id="280">    
+    <end type="SOURCE" refId="73"/>    
+    <end type="TARGET" refId="25"/>  
+  </generalization>  
+  <nesting id="281">    
+    <bendpoint x="6974" y="155"/>    
+    <bendpoint x="6974" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="43"/>  
+  </nesting>  
+  <nesting id="282">    
+    <bendpoint x="4388" y="155"/>    
+    <bendpoint x="4388" y="427"/>    
+    <bendpoint x="4388" y="941"/>    
+    <bendpoint x="4388" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="4"/>  
+  </nesting>  
+  <association id="283">    
+    <end type="SOURCE" refId="41" navigable="false">      
+      <attribute id="284" name="meta"/>      
+      <multiplicity id="285" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="286">    
+    <end type="SOURCE" refId="55"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="287">    
+    <end type="SOURCE" refId="82"/>    
+    <end type="TARGET" refId="66"/>  
+  </nesting>  
+  <realization id="288">    
+    <end type="SOURCE" refId="47"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="289">    
+    <bendpoint x="6492" y="155"/>    
+    <bendpoint x="6511" y="427"/>    
+    <bendpoint x="6645" y="941"/>    
+    <bendpoint x="7056" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="8"/>  
+  </nesting>  
+  <nesting id="290">    
+    <bendpoint x="6417" y="155"/>    
+    <bendpoint x="6417" y="427"/>    
+    <bendpoint x="6417" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="46"/>  
+  </nesting>  
+  <nesting id="291">    
+    <bendpoint x="5850" y="155"/>    
+    <bendpoint x="5850" y="427"/>    
+    <bendpoint x="5871" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="42"/>  
+  </nesting>  
+  <generalization id="292">    
+    <end type="SOURCE" refId="76"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <association id="293">    
+    <end type="SOURCE" refId="71" navigable="false">      
+      <attribute id="294" name="fexpr"/>      
+      <multiplicity id="295" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="296">    
+    <bendpoint x="6995" y="155"/>    
+    <bendpoint x="6995" y="427"/>    
+    <bendpoint x="6995" y="941"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="28"/>  
+  </nesting>  
+  <nesting id="297">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="63"/>  
+  </nesting>  
+  <nesting id="298">    
+    <bendpoint x="5787" y="155"/>    
+    <bendpoint x="5787" y="427"/>    
+    <bendpoint x="5787" y="941"/>    
+    <bendpoint x="5285" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="48"/>  
+  </nesting>  
+  <nesting id="299">    
+    <bendpoint x="6059" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="56"/>  
+  </nesting>  
+  <realization id="300">    
+    <bendpoint x="4198" y="1709"/>    
+    <end type="SOURCE" refId="49"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <nesting id="301">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="80"/>  
+  </nesting>  
+  <realization id="302">    
+    <end type="SOURCE" refId="48"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <realization id="303">    
+    <bendpoint x="4513" y="1203"/>    
+    <bendpoint x="4513" y="1465"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="304">    
+    <bendpoint x="8483" y="155"/>    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="305" name="FALSE_EXPR"/>      
+      <multiplicity id="306" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="76" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="307">    
+    <bendpoint x="3466" y="155"/>    
+    <bendpoint x="3456" y="427"/>    
+    <bendpoint x="3446" y="941"/>    
+    <bendpoint x="3446" y="1203"/>    
+    <bendpoint x="2642" y="1465"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="16"/>  
+  </nesting>  
+  <realization id="308">    
+    <bendpoint x="6585" y="1465"/>    
+    <end type="SOURCE" refId="46"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <association id="309">    
+    <end type="SOURCE" refId="41" navigable="false">      
+      <attribute id="310" name="expr"/>      
+      <multiplicity id="311" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="312">    
+    <end type="SOURCE" refId="83" navigable="false">      
+      <attribute id="313" name="init"/>      
+      <multiplicity id="314" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="315">    
+    <end type="SOURCE" refId="77"/>    
+    <end type="TARGET" refId="53"/>  
+  </generalization>  
+  <realization id="316">    
+    <bendpoint x="3509" y="941"/>    
+    <bendpoint x="2843" y="1203"/>    
+    <bendpoint x="2177" y="1465"/>    
+    <bendpoint x="2177" y="1709"/>    
+    <end type="SOURCE" refId="39"/>    
+    <end type="TARGET" refId="50"/>  
+  </realization>  
+  <realization id="317">    
+    <bendpoint x="7767" y="1203"/>    
+    <end type="SOURCE" refId="36"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <nesting id="318">    
+    <bendpoint x="8504" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="76"/>  
+  </nesting>  
+  <nesting id="319">    
+    <end type="SOURCE" refId="27"/>    
+    <end type="TARGET" refId="6"/>  
+  </nesting>  
+  <association id="320">    
+    <end type="SOURCE" refId="43" navigable="false">      
+      <attribute id="321" name="variadicMethod"/>      
+      <multiplicity id="322" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="28" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="323">    
+    <bendpoint x="4555" y="1203"/>    
+    <bendpoint x="4555" y="1465"/>    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="324" name="defaultExpr"/>      
+      <multiplicity id="325" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="326">    
+    <bendpoint x="3508" y="155"/>    
+    <bendpoint x="3498" y="427"/>    
+    <bendpoint x="3488" y="941"/>    
+    <bendpoint x="3488" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="83"/>  
+  </nesting>  
+  <generalization id="327">    
+    <end type="SOURCE" refId="36"/>    
+    <end type="TARGET" refId="67"/>  
+  </generalization>  
+  <realization id="328">    
+    <end type="SOURCE" refId="46"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <nesting id="329">    
+    <bendpoint x="2244" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="62"/>  
+  </nesting>  
+  <nesting id="330">    
+    <end type="SOURCE" refId="56"/>    
+    <end type="TARGET" refId="69"/>  
+  </nesting>  
+  <nesting id="331">    
+    <bendpoint x="5304" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="31"/>  
+  </nesting>  
+  <association id="332">    
+    <end type="SOURCE" refId="24" navigable="false">      
+      <attribute id="333" name="target"/>      
+      <multiplicity id="334" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="335">    
+    <end type="SOURCE" refId="79" navigable="false">      
+      <attribute id="336" name="target"/>      
+      <multiplicity id="337" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="338">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <association id="339">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="340" name="expr"/>      
+      <multiplicity id="341" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="342">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="54"/>  
+  </nesting>  
+  <association id="343">    
+    <bendpoint x="5829" y="1203"/>    
+    <bendpoint x="5388" y="1465"/>    
+    <end type="SOURCE" refId="29" navigable="false">      
+      <attribute id="344" name="target"/>      
+      <multiplicity id="345" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="346">    
+    <bendpoint x="8420" y="1465"/>    
+    <bendpoint x="8420" y="1709"/>    
+    <end type="SOURCE" refId="37"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="347">    
+    <bendpoint x="3591" y="155"/>    
+    <bendpoint x="3591" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="19"/>  
+  </nesting>  
+  <nesting id="348">    
+    <bendpoint x="8462" y="155"/>    
+    <bendpoint x="8462" y="427"/>    
+    <bendpoint x="8462" y="941"/>    
+    <bendpoint x="8462" y="1203"/>    
+    <bendpoint x="8462" y="1465"/>    
+    <bendpoint x="8462" y="1709"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="57"/>  
+  </nesting>  
+  <association id="349">    
+    <bendpoint x="4597" y="1465"/>    
+    <end type="SOURCE" refId="38" navigable="false">      
+      <attribute id="350" name="handler"/>      
+      <multiplicity id="351" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="352">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="55"/>  
+  </nesting>  
+  <realization id="353">    
+    <bendpoint x="6396" y="941"/>    
+    <bendpoint x="5871" y="1203"/>    
+    <bendpoint x="5637" y="1465"/>    
+    <end type="SOURCE" refId="25"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <generalization id="354">    
+    <end type="SOURCE" refId="56"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <generalization id="355">    
+    <bendpoint x="6624" y="941"/>    
+    <bendpoint x="6532" y="427"/>    
+    <end type="SOURCE" refId="28"/>    
+    <end type="TARGET" refId="61"/>  
+  </generalization>  
+  <nesting id="356">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="26"/>  
+  </nesting>  
+  <realization id="357">    
+    <end type="SOURCE" refId="51"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <generalization id="358">    
+    <end type="SOURCE" refId="50"/>    
+    <end type="TARGET" refId="16"/>  
+  </generalization>  
+  <generalization id="359">    
+    <end type="SOURCE" refId="67"/>    
+    <end type="TARGET" refId="53"/>  
+  </generalization>  
+  <association id="360">    
+    <bendpoint x="2135" y="427"/>    
+    <bendpoint x="2135" y="941"/>    
+    <bendpoint x="2135" y="1203"/>    
+    <bendpoint x="2135" y="1465"/>    
+    <end type="SOURCE" refId="40" navigable="false">      
+      <attribute id="361" name="target"/>      
+      <multiplicity id="362" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="16" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="363">    
+    <end type="SOURCE" refId="34"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="364">    
+    <end type="SOURCE" refId="79"/>    
+    <end type="TARGET" refId="20"/>  
+  </nesting>  
+  <nesting id="365">    
+    <bendpoint x="3570" y="155"/>    
+    <bendpoint x="3570" y="427"/>    
+    <bendpoint x="3551" y="941"/>    
+    <bendpoint x="3551" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="41"/>  
+  </nesting>  
+  <nesting id="366">    
+    <bendpoint x="5471" y="155"/>    
+    <bendpoint x="5471" y="427"/>    
+    <bendpoint x="5766" y="941"/>    
+    <bendpoint x="5264" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="49"/>  
+  </nesting>  
+  <nesting id="367">    
+    <bendpoint x="7979" y="155"/>    
+    <bendpoint x="7979" y="427"/>    
+    <bendpoint x="7979" y="941"/>    
+    <bendpoint x="7979" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="27"/>  
+  </nesting>  
+  <realization id="368">    
+    <bendpoint x="5829" y="941"/>    
+    <bendpoint x="6113" y="1203"/>    
+    <bendpoint x="6627" y="1465"/>    
+    <bendpoint x="6627" y="1709"/>    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="369">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <generalization id="370">    
+    <end type="SOURCE" refId="31"/>    
+    <end type="TARGET" refId="26"/>  
+  </generalization>  
+  <realization id="371">    
+    <end type="SOURCE" refId="68"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <realization id="372">    
+    <bendpoint x="5430" y="1465"/>    
+    <end type="SOURCE" refId="42"/>    
+    <end type="TARGET" refId="16"/>  
+  </realization>  
+  <nesting id="373">    
+    <end type="SOURCE" refId="73"/>    
+    <end type="TARGET" refId="21"/>  
+  </nesting>  
+  <nesting id="374">    
+    <end type="SOURCE" refId="52"/>    
+    <end type="TARGET" refId="18"/>  
+  </nesting>  
+  <realization id="375">    
+    <bendpoint x="7077" y="1203"/>    
+    <end type="SOURCE" refId="29"/>    
+    <end type="TARGET" refId="2"/>  
+  </realization>  
+  <nesting id="376">    
+    <bendpoint x="8027" y="155"/>    
+    <bendpoint x="8027" y="427"/>    
+    <bendpoint x="8027" y="941"/>    
+    <bendpoint x="8027" y="1203"/>    
+    <bendpoint x="8378" y="1465"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="15"/>  
+  </nesting>  
+  <nesting id="377">    
+    <bendpoint x="7037" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="72"/>  
+  </nesting>  
+  <realization id="378">    
+    <end type="SOURCE" refId="58"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="379">    
+    <end type="SOURCE" refId="23"/>    
+    <end type="TARGET" refId="47"/>  
+  </nesting>  
+  <nesting id="380">    
+    <bendpoint x="5871" y="155"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="67"/>  
+  </nesting>  
+  <nesting id="381">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="59"/>  
+  </nesting>  
+  <generalization id="382">    
+    <end type="SOURCE" refId="24"/>    
+    <end type="TARGET" refId="42"/>  
+  </generalization>  
+  <realization id="383">    
+    <end type="SOURCE" refId="66"/>    
+    <end type="TARGET" refId="57"/>  
+  </realization>  
+  <nesting id="384">    
+    <end type="SOURCE" refId="49"/>    
+    <end type="TARGET" refId="12"/>  
+  </nesting>  
+  <nesting id="385">    
+    <bendpoint x="3445" y="155"/>    
+    <bendpoint x="3435" y="427"/>    
+    <bendpoint x="3425" y="941"/>    
+    <bendpoint x="3425" y="1203"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="23"/>  
+  </nesting>  
+  <nesting id="386">    
+    <bendpoint x="7767" y="155"/>    
+    <bendpoint x="7767" y="427"/>    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="73"/>  
+  </nesting>  
+  <classifier-display autosize="true" stereotype="true" package="false" initial-value="false" signature="true" 
+    accessors="true" visibility="false">    
+    <attributes public="false" package="false" protected="false" private="false" static="false"/>    
+    <operations public="true" package="false" protected="false" private="false" static="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
