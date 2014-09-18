@@ -220,6 +220,7 @@ static final public Var KEYWORDS = Var.create().setDynamic();
 static final public Var VARS = Var.create().setDynamic();
 
 //FnFrame
+//函数调用帧
 static final public Var METHOD = Var.create(null).setDynamic();
 
 //null or not
@@ -327,6 +328,11 @@ static final public Var CLEAR_SITES = Var.create(null).setDynamic();
 	EVAL   //求值
 }
 
+    /**
+     * 针对Recur的类
+     * @author dennis
+     *
+     */
 private class Recur {};
 static final public Class RECUR_CLASS = Recur.class;
 /**
@@ -5209,13 +5215,24 @@ static public class ObjExpr implements Expr{
 	}
 
 }
-
+/**
+ * 路径类型
+ * @author dennis
+ *
+ */
 enum PATHTYPE {
+	//分支或者顺序
     PATH, BRANCH;
 }
-
+/**
+ * 代码执行路径
+ * @author dennis
+ *
+ */
 static class PathNode{
+	//路径类型
     final PATHTYPE type;
+    //父路径
     final PathNode parent;
 
     PathNode(PATHTYPE type, PathNode parent) {
@@ -5223,7 +5240,10 @@ static class PathNode{
         this.parent = parent;
     }
 }
-
+/**
+ * 清除根路径
+ * @return
+ */
 static PathNode clearPathRoot(){
     return (PathNode) CLEAR_ROOT.get();
 }
@@ -6015,7 +6035,11 @@ public static class BodyExpr implements Expr, MaybePrimitiveExpr{
 		return (Expr) exprs.nth(exprs.count() - 1);
 	}
 }
-
+/**
+ * 绑定初始值对象
+ * @author dennis
+ *
+ */
 public static class BindingInit{
 	LocalBinding binding;
 	Expr init;
@@ -6158,7 +6182,11 @@ public static class LetFnExpr implements Expr{
 		return body.getJavaClass();
 	}
 }
-
+/**
+ * Let special form
+ * @author dennis
+ *
+ */
 public static class LetExpr implements Expr, MaybePrimitiveExpr{
 	public final PersistentVector bindingInits;
 	public final Expr body;
@@ -6170,65 +6198,90 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 		this.isLoop = isLoop;
 	}
 
+	/**
+	 * 同时parse let和loop*
+	 * @author dennis
+	 *
+	 */
 	static class Parser implements IParser{
 		public Expr parse(C context, Object frm) {
 			ISeq form = (ISeq) frm;
 			//(let [var val var2 val2 ...] body...)
+			//判断是不是loop*
 			boolean isLoop = RT.first(form).equals(LOOP);
+			//确保bindings 是 vector
 			if(!(RT.second(form) instanceof IPersistentVector))
 				throw new IllegalArgumentException("Bad binding form, expected vector");
-
+			//确保vector长度是偶数，成对的key-value
 			IPersistentVector bindings = (IPersistentVector) RT.second(form);
 			if((bindings.count() % 2) != 0)
 				throw new IllegalArgumentException("Bad binding form, expected matched symbol expression pairs");
-
+			//获取剩下的body
 			ISeq body = RT.next(RT.next(form));
 
+			//如果是eval，或者是loop表达式，需要一个返回值，转化为((^:once fn* [] form))匿名函数并求值，避免内存泄露
 			if(context == C.EVAL
 			   || (context == C.EXPRESSION && isLoop))
 				return analyze(context, RT.list(RT.list(FNONCE, PersistentVector.EMPTY, form)));
 
+			//获取函数调用帧 FnFrame
 			ObjMethod method = (ObjMethod) METHOD.deref();
 			IPersistentMap backupMethodLocals = method.locals;
 			IPersistentMap backupMethodIndexLocals = method.indexlocals;
+			//判断是不是不匹配，递归的时候，如果原生类型在循环后box装箱，告警
 			IPersistentVector recurMismatches = PersistentVector.EMPTY;
 			for (int i = 0; i < bindings.count()/2; i++)
 				{
+				//默认没有不匹配
 				recurMismatches = recurMismatches.cons(RT.F);
 				}
 
 			//may repeat once for each binding with a mismatch, return breaks
 			while(true){
+				//获取binding
 				IPersistentMap dynamicBindings = RT.map(LOCAL_ENV, LOCAL_ENV.deref(),
 														NEXT_LOCAL_NUM, NEXT_LOCAL_NUM.deref());
+				//设置帧的locals和indexLocals
 				method.locals = backupMethodLocals;
 				method.indexlocals = backupMethodIndexLocals;
 
+				//创建路径
 				PathNode looproot = new PathNode(PATHTYPE.PATH, (PathNode) CLEAR_PATH.get());
 				PathNode clearroot = new PathNode(PATHTYPE.PATH,looproot);
 				PathNode clearpath = new PathNode(PATHTYPE.PATH,looproot);
+				//如果是loop，绑定LOOP_LOCALS var，在recur里用到
 				if(isLoop)
 					dynamicBindings = dynamicBindings.assoc(LOOP_LOCALS, null);
 
 				try
 					{
+					//入栈
 					Var.pushThreadBindings(dynamicBindings);
-
+					//binding初始值
 					PersistentVector bindingInits = PersistentVector.EMPTY;
+					//loopLocals，收集loop用到的var，在recur里用到
 					PersistentVector loopLocals = PersistentVector.EMPTY;
+					//遍历let或者loop的bindings form
 					for(int i = 0; i < bindings.count(); i += 2)
 						{
 						if(!(bindings.nth(i) instanceof Symbol))
 							throw new IllegalArgumentException(
 									"Bad binding form, expected symbol, got: " + bindings.nth(i));
+						//绑定的 symbol
 						Symbol sym = (Symbol) bindings.nth(i);
+						//不可是限定符号
 						if(sym.getNamespace() != null)
 							throw Util.runtimeException("Can't let qualified name: " + sym);
+						//分析初始值
 						Expr init = analyze(C.EXPRESSION, bindings.nth(i + 1), sym.name);
+						//如果是loop，判断是否有类型装箱发生，并转化初始值
 						if(isLoop)
 							{
+							//如果发现类型装箱，告警
+							//例如(set! *warn-on-reflection* true) (loop [a 1] (if (> a 100) a (recur (#(* 2 %) a))))
 							if(recurMismatches != null && RT.booleanCast(recurMismatches.nth(i/2)))
 								{
+								//调用RT.box方法来box
 								init = new StaticMethodExpr("", 0, 0, null, RT.class, "box", RT.vector(init));
 								if(RT.booleanCast(RT.WARN_ON_REFLECTION.deref()))
 									RT.errPrintWriter().println("Auto-boxing loop arg: " + sym);
@@ -6239,17 +6292,21 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 								init = new StaticMethodExpr("", 0, 0, null, RT.class, "doubleCast", RT.vector(init));
 							}
 						//sequential enhancement of env (like Lisp let*)
+						//clojure里的let是顺序执行，类似 scheme 里的 let*，而不是let
 						try
 							{
 							if(isLoop)
 								{
+								//将路径信息入栈
 	                            Var.pushThreadBindings(
 									RT.map(CLEAR_PATH, clearpath,
 	                                       CLEAR_ROOT, clearroot,
 	                                       NO_RECUR, null));
 
 								}
+							//注册binding里的symbol
 							LocalBinding lb = registerLocal(sym, tagOf(sym), init,false);
+							//创建初始绑定对象，放到loopLocals，recur里用到
 							BindingInit bi = new BindingInit(lb, init);
 							bindingInits = bindingInits.cons(bi);
 							if(isLoop)
@@ -6261,6 +6318,7 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 							    Var.popThreadBindings();
 							}
 						}
+					//设置LOOP_LOCALS，recur里用到
 					if(isLoop)
 						LOOP_LOCALS.set(loopLocals);
 					Expr bodyExpr;
@@ -6274,12 +6332,14 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
                                        NO_RECUR, null));
                                                        
 							}
+						//分析body，注册context是return，表示一个tail position，可以recur，body里可能有recur form
 						bodyExpr = (new BodyExpr.Parser()).parse(isLoop ? C.RETURN : context, body);
 						}
 					finally{
 						if(isLoop)
 							{
 						    Var.popThreadBindings();
+						    //在分析body后，查看有没有mismatch发生
 							for(int i = 0;i< loopLocals.count();i++)
 								{
 								LocalBinding lb = (LocalBinding) loopLocals.nth(i);
@@ -6291,6 +6351,7 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 								}
 							}
 						}
+					//没有发生misMatch，返回LetExpr
 					if(!moreMismatches)
 						return new LetExpr(bindingInits, bodyExpr, isLoop);
 					}
@@ -6302,43 +6363,56 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 		}
 	}
 
+	//同样不支持 eval
 	public Object eval() {
 		throw new UnsupportedOperationException("Can't eval let/loop");
 	}
-
+	//装箱类型
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
 		doEmit(context, objx, gen, false);
 	}
 
+	//原生类型
 	public void emitUnboxed(C context, ObjExpr objx, GeneratorAdapter gen){
 		doEmit(context, objx, gen, true);
 	}
 
-
+	//生成let 或者 binding 字节码
 	public void doEmit(C context, ObjExpr objx, GeneratorAdapter gen, boolean emitUnboxed){
 		HashMap<BindingInit, Label> bindingLabels = new HashMap();
+		//遍历初始值
 		for(int i = 0; i < bindingInits.count(); i++)
 			{
 			BindingInit bi = (BindingInit) bindingInits.nth(i);
+			//可能是原生类型
 			Class primc = maybePrimitiveType(bi.init);
 			if(primc != null)
 				{
+				
+				//递归，生成初始值的字节码
 				((MaybePrimitiveExpr) bi.init).emitUnboxed(C.EXPRESSION, objx, gen);
+				//存储初始值,这里通过 Type.getType(primc).getOpcode(Opcodes.ISTORE) 获取正确的加载指令，如FLOAD,LLOAD等
 				gen.visitVarInsn(Type.getType(primc).getOpcode(Opcodes.ISTORE), bi.binding.idx);
 				}
 			else
 				{
+				//否则作为 object type 存储
 				bi.init.emit(C.EXPRESSION, objx, gen);
 				gen.visitVarInsn(OBJECT_TYPE.getOpcode(Opcodes.ISTORE), bi.binding.idx);
 				}
+			//将当前初始值映射到一个label,也就是当前字节码位置
 			bindingLabels.put(bi, gen.mark());
 			}
-		Label loopLabel = gen.mark();
+		
 		if(isLoop)
 			{
+			//生成一个 loop label
+			Label loopLabel = gen.mark();
 			try
 				{
+				//将 loop label 入栈
 				Var.pushThreadBindings(RT.map(LOOP_LABEL, loopLabel));
+				// 对 body 生成字节码
 				if(emitUnboxed)
 					((MaybePrimitiveExpr)body).emitUnboxed(context, objx, gen);
 				else
@@ -6356,14 +6430,22 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 			else
 				body.emit(context, objx, gen);
 			}
+		//结束 label
 		Label end = gen.mark();
 //		gen.visitLocalVariable("this", "Ljava/lang/Object;", null, loopLabel, end, 0);
 		for(ISeq bis = bindingInits.seq(); bis != null; bis = bis.next())
 			{
 			BindingInit bi = (BindingInit) bis.first();
+			//获取 var name
 			String lname = bi.binding.name;
+			//如果是gensym
 			if(lname.endsWith("__auto__"))
+				//加上自动递增后缀，防止冲突
 				lname += RT.nextID();
+			
+			//生成 local variable table
+			//主要是为了生成debug 信息，我记得我在 aviator 里是没有处理的
+			//http://stackoverflow.com/questions/13589924/how-to-create-a-local-variable-with-asm
 			Class primc = maybePrimitiveType(bi.init);
 			if(primc != null)
 				gen.visitLocalVariable(lname, Type.getDescriptor(primc), null, bindingLabels.get(bi), end,
@@ -6386,11 +6468,15 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 	}
 
 }
-
+/**
+ * recur 表达式
+ * @author dennis
+ *
+ */
 public static class RecurExpr implements Expr, MaybePrimitiveExpr{
-	public final IPersistentVector args;
-	public final IPersistentVector loopLocals;
-	final int line;
+	public final IPersistentVector args;  //参数
+	public final IPersistentVector loopLocals; //在binding,fn等地方收集的loopLocals，也就是参与循环的 local var
+	final int line;  //下面三个都是源码信息
 	final int column;
 	final String source;
 
@@ -6404,13 +6490,17 @@ public static class RecurExpr implements Expr, MaybePrimitiveExpr{
 	}
 
 	public Object eval() {
+		//无法 eval
 		throw new UnsupportedOperationException("Can't eval recur");
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
 		Label loopLabel = (Label) LOOP_LABEL.deref();
+		//从 local binding 里拿到 循环点的 label
+		//不存在，明显是非法的语法，不应该出现
 		if(loopLabel == null)
 			throw new IllegalStateException();
+		//遍历 local 变量，生成对应值的字节码
 		for(int i = 0; i < loopLocals.count(); i++)
 			{
 			LocalBinding lb = (LocalBinding) loopLocals.nth(i);
@@ -6419,6 +6509,7 @@ public static class RecurExpr implements Expr, MaybePrimitiveExpr{
 				{
 				Class primc = lb.getPrimitiveType();
 				final Class pc = maybePrimitiveType(arg);
+				//处理各种 primitive 类型，为了信念
 				if(pc == primc)
 					((MaybePrimitiveExpr) arg).emitUnboxed(C.EXPRESSION, objx, gen);
 				else if(primc == long.class && pc == int.class)
@@ -6458,25 +6549,30 @@ public static class RecurExpr implements Expr, MaybePrimitiveExpr{
 				}
 			else
 				{
+				//非 primitive 类型
 				arg.emit(C.EXPRESSION, objx, gen);
 				}
 			}
-
+		//覆写 local variable
+		//生成初始值字节码是按照顺序 1，2，3 load 进来，因此为了覆盖 local variable，需要反序 3 2 1 地 store 进去
 		for(int i = loopLocals.count() - 1; i >= 0; i--)
 			{
 			LocalBinding lb = (LocalBinding) loopLocals.nth(i);
 			Class primc = lb.getPrimitiveType();
+			//如果是方法参数，需要存储到方法参数的位置上
 			if(lb.isArg)
 				gen.storeArg(lb.idx-(objx.isStatic?0:1));
+			//否则就是 local variable
 			else
 				{
+				//仍然针对primitive 类型优化
 				if(primc != null)
 					gen.visitVarInsn(Type.getType(primc).getOpcode(Opcodes.ISTORE), lb.idx);
 				else
 					gen.visitVarInsn(OBJECT_TYPE.getOpcode(Opcodes.ISTORE), lb.idx);
 				}
 			}
-
+		//返回到 loop lable，循环
 		gen.goTo(loopLabel);
 	}
 
@@ -6496,6 +6592,9 @@ public static class RecurExpr implements Expr, MaybePrimitiveExpr{
 
 			ISeq form = (ISeq) frm;
 			IPersistentVector loopLocals = (IPersistentVector) LOOP_LOCALS.deref();
+			//两个条件判断是否是 tail position:
+			//1. return位置
+			//2. loop locals存在
 			if(context != C.RETURN || loopLocals == null)
 				throw new UnsupportedOperationException("Can only recur from tail position");
                         if(NO_RECUR.deref() != null)
@@ -7162,19 +7261,26 @@ private static Expr analyzeSymbol(Symbol sym) {
 //	Var v = lookupVar(sym, false);
 //	if(v != null)
 //		return new VarExpr(v, tag);
+	//resolve symbole，看看是不是var
 	Object o = resolve(sym);
 	if(o instanceof Var)
 		{
 		Var v = (Var) o;
+		//macro没有返回值
 		if(isMacro(v) != null)
 			throw Util.runtimeException("Can't take value of a macro: " + v);
+		//如果是常量（设置了 :const true)，分析表达式(quote value)
 		if(RT.booleanCast(RT.get(v.meta(),RT.CONST_KEY)))
 			return analyze(C.EXPRESSION, RT.list(QUOTE, v.get()));
+		//注册var
 		registerVar(v);
+		//返回var expr
 		return new VarExpr(v, tag);
 		}
+	//类，返回常量表达式
 	else if(o instanceof Class)
 		return new ConstantExpr(o);
+	//未能解析的symbol，抛出异常
 	else if(o instanceof Symbol)
 			return new UnresolvedVarExpr((Symbol) o);
 
