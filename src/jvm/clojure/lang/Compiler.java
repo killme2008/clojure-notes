@@ -308,6 +308,7 @@ static final public Var COMPILE_STUB_CLASS = Var.create(null).setDynamic();
 
 
 //PathNode chain
+// Path标记，需要开启一个新的栈帧
 static final public Var CLEAR_PATH = Var.create(null).setDynamic();
 
 //tail of PathNode chain
@@ -2734,8 +2735,15 @@ public static class MetaExpr implements Expr{
 		return expr.getJavaClass();
 	}
 }
-
+/**
+ * If 表达式
+ * @author dennis
+ *
+ */
 public static class IfExpr implements Expr, MaybePrimitiveExpr{
+	/**
+	 * 三个表达式，分别表示test,then 和 else
+	 */
 	public final Expr testExpr;
 	public final Expr thenExpr;
 	public final Expr elseExpr;
@@ -2753,8 +2761,10 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
 
 	public Object eval() {
 		Object t = testExpr.eval();
+		//不是nil，不是false，就是true,执行then
 		if(t != null && t != Boolean.FALSE)
 			return thenExpr.eval();
+		//否则，执行 else
 		return elseExpr.eval();
 	}
 
@@ -2767,45 +2777,69 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
 	}
 
 	public void doEmit(C context, ObjExpr objx, GeneratorAdapter gen, boolean emitUnboxed){
+		//null label，快速跳转到else
 		Label nullLabel = gen.newLabel();
+		//false label，用来跳转到else
 		Label falseLabel = gen.newLabel();
+		//结束 label
 		Label endLabel = gen.newLabel();
 
 		gen.visitLineNumber(line, gen.mark());
 
+		//1.test 是静态方法调用，特殊处理
 		if(testExpr instanceof StaticMethodExpr && ((StaticMethodExpr)testExpr).canEmitIntrinsicPredicate())
 			{
 			((StaticMethodExpr) testExpr).emitIntrinsicPredicate(C.EXPRESSION, objx, gen, falseLabel);
 			}
+		//2. 如果是 boolean 原生类型
 		else if(maybePrimitiveType(testExpr) == boolean.class)
 			{
 			((MaybePrimitiveExpr) testExpr).emitUnboxed(C.EXPRESSION, objx, gen);
+			//直接比较栈顶和0，如果相等，就是false，跳转到else
 			gen.ifZCmp(gen.EQ, falseLabel);
 			}
 		else
 			{
+			//生成testExpr字节码
 			testExpr.emit(C.EXPRESSION, objx, gen);
+			//复制栈顶，要保证分支之间栈大小一致
 			gen.dup();
+			//如果是null，直接跳转到 else 分支，优化分支
 			gen.ifNull(nullLabel);
+			//否则，和 Boolean/FALSE 比较
 			gen.getStatic(BOOLEAN_OBJECT_TYPE, "FALSE", BOOLEAN_OBJECT_TYPE);
+			//如果等于 FALSE，跳转到 false label
 			gen.visitJumpInsn(IF_ACMPEQ, falseLabel);
 			}
+		//生成 then 表达式字节码
 		if(emitUnboxed)
 			((MaybePrimitiveExpr)thenExpr).emitUnboxed(context, objx, gen);
 		else
 			thenExpr.emit(context, objx, gen);
+		//执行then，跳转到end
 		gen.goTo(endLabel);
+		//null label
 		gen.mark(nullLabel);
+		//弹出多复制的栈顶
 		gen.pop();
+		// false label
 		gen.mark(falseLabel);
+		//执行else
 		if(emitUnboxed)
 			((MaybePrimitiveExpr)elseExpr).emitUnboxed(context, objx, gen);
 		else
 			elseExpr.emit(context, objx, gen);
+		// end label
 		gen.mark(endLabel);
 	}
 
 	public boolean hasJavaClass() {
+		//有没有 java class，取决于 then 和 else
+		//1.首先必须保证 then 和 else 都有
+		//2.其次，必须满足下列3个条件之一：
+		//2.1 then 和 else 的 java class 一致
+		//2.2 then 或者 else 是 recur 表达式
+		//2.3 then 和 else 其中一个没有 java class，另一个非原生类型
 		return thenExpr.hasJavaClass()
 		       && elseExpr.hasJavaClass()
 		       &&
@@ -2817,6 +2851,7 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
 	}
 
 	public boolean canEmitPrimitive(){
+		//是否可以生成原生类型字节码，参考上面 hasJavaClass()
 		try
 			{
 			return thenExpr instanceof MaybePrimitiveExpr
@@ -2840,18 +2875,29 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
 		return elseExpr.getJavaClass();
 	}
 
+	/**
+	 * if 表达式解释器
+	 * @author dennis
+	 *
+	 */
 	static class Parser implements IParser{
 		public Expr parse(C context, Object frm) {
 			ISeq form = (ISeq) frm;
 			//(if test then) or (if test then else)
+			//最多3个表达式
 			if(form.count() > 4)
 				throw Util.runtimeException("Too many arguments to if");
+			//最少也是3个
 			else if(form.count() < 3)
 				throw Util.runtimeException("Too few arguments to if");
+			//分支路径
             PathNode branch = new PathNode(PATHTYPE.BRANCH, (PathNode) CLEAR_PATH.get());
+            //分析 test
             Expr testexpr = analyze(context == C.EVAL ? context : C.EXPRESSION, RT.second(form));
+            
             Expr thenexpr, elseexpr;
             try {
+            	//分析 then
                 Var.pushThreadBindings(
                         RT.map(CLEAR_PATH, new PathNode(PATHTYPE.PATH,branch)));
                 thenexpr = analyze(context, RT.third(form));
@@ -2860,6 +2906,7 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
                 Var.popThreadBindings();
                 }
             try {
+            	// 分析 else
                 Var.pushThreadBindings(
                         RT.map(CLEAR_PATH, new PathNode(PATHTYPE.PATH,branch)));
                 elseexpr = analyze(context, RT.fourth(form));
@@ -2867,6 +2914,7 @@ public static class IfExpr implements Expr, MaybePrimitiveExpr{
             finally{
                 Var.popThreadBindings();
                 }
+            //返回最终结果的 IfExpr
 			return new IfExpr(lineDeref(),
                               columnDeref(),
 			                  testexpr,
@@ -5241,7 +5289,7 @@ static class PathNode{
     }
 }
 /**
- * 清除根路径
+ * 返回路径的根节点
  * @return
  */
 static PathNode clearPathRoot(){
@@ -6245,7 +6293,7 @@ public static class LetExpr implements Expr, MaybePrimitiveExpr{
 				method.locals = backupMethodLocals;
 				method.indexlocals = backupMethodIndexLocals;
 
-				//创建路径
+				//创建新路径，也就是新的栈帧，每次迭代都是一个新的栈帧
 				PathNode looproot = new PathNode(PATHTYPE.PATH, (PathNode) CLEAR_PATH.get());
 				PathNode clearroot = new PathNode(PATHTYPE.PATH,looproot);
 				PathNode clearpath = new PathNode(PATHTYPE.PATH,looproot);
