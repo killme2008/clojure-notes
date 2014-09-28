@@ -1959,27 +1959,36 @@ static class NumberExpr extends LiteralExpr implements MaybePrimitiveExpr{
 	}
 }
 
+/**
+ * 常量表达式，可能是 quote，可能是deftype,defrecord等
+ * @author dennis
+ *
+ */
 static class ConstantExpr extends LiteralExpr{
 	//stuff quoted vals in classloader at compile time, pull out at runtime
 	//this won't work for static compilation...
-	public final Object v;
-	public final int id;
+	public final Object v; //常量对象
+	public final int id; //在常量池中的编号
 
 	public ConstantExpr(Object v){
 		this.v = v;
+		// id 通过注册到常量池里获得
 		this.id = registerConstant(v);
 //		this.id = RT.nextID();
 //		DynamicClassLoader loader = (DynamicClassLoader) LOADER.get();
 //		loader.registerQuotedVal(id, v);
 	}
 
+	//返回常量对象
 	Object val(){
 		return v;
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//生成访问常量的字节码，通过 id 访问，生成 getstatic 指令访问这些静态常量
 		objx.emitConstant(gen, id);
 
+		//如果是语句，弹出结果，没有必要 TODO 还是为什么不能改写判断？减少一次入栈
 		if(context == C.STATEMENT)
 			{
 			gen.pop();
@@ -5199,7 +5208,8 @@ static public class ObjExpr implements Expr{
 	}
 
 	public void emitConstant(GeneratorAdapter gen, int id){
-		//访问常量，获取常量名和类型，生成访问字节码（静态变量）
+		//访问常量，获取常量名和类型，生成访问字节码（静态变量） GETSTATIC 指令。
+		//常量其实就是静态变量
 		gen.getStatic(objtype, constantName(id), constantType(id));
 	}
 
@@ -6004,8 +6014,13 @@ public static class LocalBindingExpr implements Expr, MaybePrimitiveExpr, Assign
 
 
 }
-
+/**
+ * (do ....) 表达式
+ * @author dennis
+ *
+ */
 public static class BodyExpr implements Expr, MaybePrimitiveExpr{
+	//表达式列表 body
 	PersistentVector exprs;
 
 	public final PersistentVector exprs(){
@@ -6016,28 +6031,40 @@ public static class BodyExpr implements Expr, MaybePrimitiveExpr{
 		this.exprs = exprs;
 	}
 
+	//parser
 	static class Parser implements IParser{
 		public Expr parse(C context, Object frms) {
 			ISeq forms = (ISeq) frms;
 			if(Util.equals(RT.first(forms), DO))
+				//取body
 				forms = RT.next(forms);
+			//遍历分析，然后cons到exprs
 			PersistentVector exprs = PersistentVector.EMPTY;
 			for(; forms != null; forms = forms.next())
 				{
+				// 1.context 不是 eval
+				// 2. context是 statement 或者不是最后一个 expr
+				// 则使用 statement context 进行解析（不需要返回值），否则直接传入 context
 				Expr e = (context != C.EVAL &&
 				          (context == C.STATEMENT || forms.next() != null)) ?
 				         analyze(C.STATEMENT, forms.first())
 				                                                            :
 				         analyze(context, forms.first());
+				//解析出来的 Expr 加入结果集合
 				exprs = exprs.cons(e);
 				}
+			//如果没有，至少加入 NIL_EXPR，也就是(do) 返回 nil
 			if(exprs.count() == 0)
 				exprs = exprs.cons(NIL_EXPR);
+			//返回解析后的表达式
 			return new BodyExpr(exprs);
 		}
 	}
-
+	/**
+	 * 求值
+	 */
 	public Object eval() {
+		//求值很简单，顺序执行，返回最后一个表达式的结果
 		Object ret = null;
 		for(Object o : exprs)
 			{
@@ -6048,37 +6075,46 @@ public static class BodyExpr implements Expr, MaybePrimitiveExpr{
 	}
 
 	public boolean canEmitPrimitive(){
+		//委托给最后一个表达式
 		return lastExpr() instanceof MaybePrimitiveExpr && ((MaybePrimitiveExpr)lastExpr()).canEmitPrimitive();
 	}
-
+	//生成 primitive 字节码
 	public void emitUnboxed(C context, ObjExpr objx, GeneratorAdapter gen){
 		for(int i = 0; i < exprs.count() - 1; i++)
 			{
+			//nth，这里解释了为什么要用 vector 保存 exprs，O(1)的访问速度
 			Expr e = (Expr) exprs.nth(i);
+			//写入 expr 对应的字节码
 			e.emit(C.STATEMENT, objx, gen);
 			}
+		//最后一个表达式是 MaybePrimitiveExpr，调用它的emitUnboxed
 		MaybePrimitiveExpr last = (MaybePrimitiveExpr) exprs.nth(exprs.count() - 1);
 		last.emitUnboxed(context, objx, gen);
 	}
 
 	public void emit(C context, ObjExpr objx, GeneratorAdapter gen){
+		//与emitUnboxed过程类似
 		for(int i = 0; i < exprs.count() - 1; i++)
 			{
 			Expr e = (Expr) exprs.nth(i);
 			e.emit(C.STATEMENT, objx, gen);
 			}
+		//只不过最后调用的是 last.emit
 		Expr last = (Expr) exprs.nth(exprs.count() - 1);
 		last.emit(context, objx, gen);
 	}
 
 	public boolean hasJavaClass() {
+		//委托给最后一个表达式
 		return lastExpr().hasJavaClass();
 	}
 
 	public Class getJavaClass() {
+		//委托给最后一个表达式
 		return lastExpr().getJavaClass();
 	}
 
+	//返回最后一个表达式，将要作为结果，因此用它来判断是否是 primitive 和 java class 是什么
 	private Expr lastExpr(){
 		return (Expr) exprs.nth(exprs.count() - 1);
 	}
@@ -8691,6 +8727,11 @@ static public class MethodParamExpr implements Expr, MaybePrimitiveExpr{
 	}
 }
 
+/**
+ * case 表达式
+ * @author dennis
+ *
+ */
 public static class CaseExpr implements Expr, MaybePrimitiveExpr{
 	public final LocalBindingExpr expr;
 	public final int shift, mask, low, high;
