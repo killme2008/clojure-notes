@@ -9,7 +9,16 @@ package clojure.lang;
  * the terms of this license.
  * You must not remove this notice, or any other, from this software.
  */
-
+/**
+ * vector 支持
+ * 1. 可以 assoc ,contains 判断
+ * 2. 是 Sequential
+ * 3. 是 stack
+ * 4. 可以 reverse。
+ * 5. 有索引的，随机访问.
+ * @author dennis
+ *
+ */
 public interface IPersistentVector extends Associative, Sequential, IPersistentStack, Reversible, Indexed{
 int length();
 

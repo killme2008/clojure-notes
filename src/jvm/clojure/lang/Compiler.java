@@ -4330,9 +4330,9 @@ static public class ObjExpr implements Expr{
 		//derived from AFn/RestFn
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 //		ClassWriter cw = new ClassWriter(0);
-//		ClassVisitor cv = cw;
+		ClassVisitor cv = cw;
 //		ClassVisitor cv = new TraceClassVisitor(new CheckClassAdapter(cw), new PrintWriter(System.out));
-		ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
+//		ClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
 		cv.visit(V1_5, ACC_PUBLIC + ACC_SUPER + ACC_FINAL, internalName, null,superName,interfaceNames);
 //		         superName != null ? superName :
 //		         (isVariadic() ? "clojure/lang/RestFn" : "clojure/lang/AFunction"), null);

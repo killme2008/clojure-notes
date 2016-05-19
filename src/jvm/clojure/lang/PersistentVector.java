@@ -19,8 +19,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class PersistentVector extends APersistentVector implements IObj, IEditableCollection{
 
+/**
+ * 一个『大』节点，每个节点包含 32 个元素。
+ * @author dennis
+ *
+ */
 public static class Node implements Serializable {
+	//表示创建或者修改的线程
 	transient public final AtomicReference<Thread> edit;
+	//容器，持有元素。
 	public final Object[] array;
 
 	public Node(AtomicReference<Thread> edit, Object[] array){
@@ -33,19 +40,26 @@ public static class Node implements Serializable {
 		this.array = new Object[32];
 	}
 }
-
+/**
+ * 空节点常量，用于空集合
+ */
 final static AtomicReference<Thread> NOEDIT = new AtomicReference<Thread>(null);
 public final static Node EMPTY_NODE = new Node(NOEDIT, new Object[32]);
-
+//总数大小
 final int cnt;
+//位移
 public final int shift;
+//根节点
 public final Node root;
+//末节点，当前正在做插入的『大节点』。
 public final Object[] tail;
+//元信息
 final IPersistentMap _meta;
 
-
+//空集合常量
 public final static PersistentVector EMPTY = new PersistentVector(0, 5, EMPTY_NODE, new Object[]{});
 
+//下面三个方法，分别从 Seq、List 和数组创建 vector，都是利用 TransientVector 的可变性来提升效率。
 static public PersistentVector create(ISeq items){
 	TransientVector ret = EMPTY.asTransient();
 	for(; items != null; items = items.next())
@@ -87,19 +101,27 @@ PersistentVector(IPersistentMap meta, int cnt, int shift, Node root, Object[] ta
 public TransientVector asTransient(){
 	return new TransientVector(this);
 }
-
+/**
+ * 求出『末尾』位置坐标，等价于 cnt/32*32
+ * @return
+ */
 final int tailoff(){
+	//小于32，直接短路返回0，加速计算。
 	if(cnt < 32)
 		return 0;
 	return ((cnt - 1) >>> 5) << 5;
 }
 
+//获取 index 所在『大』节点
 public Object[] arrayFor(int i){
 	if(i >= 0 && i < cnt)
 		{
+		//在末尾位置之外，直接返回 tail 节点。
 		if(i >= tailoff())
 			return tail;
+		//否则，从 root 向下逐层定位。
 		Node node = root;
+		//每隔 5 位一层。
 		for(int level = shift; level > 0; level -= 5)
 			node = (Node) node.array[(i >>> level) & 0x01f];
 		return node.array;
@@ -121,6 +143,7 @@ public Object nth(int i, Object notFound){
 public PersistentVector assocN(int i, Object val){
 	if(i >= 0 && i < cnt)
 		{
+		//末尾位置，直接加入 tail
 		if(i >= tailoff())
 			{
 			Object[] newTail = new Object[tail.length];
@@ -129,23 +152,29 @@ public PersistentVector assocN(int i, Object val){
 
 			return new PersistentVector(meta(), cnt, shift, root, newTail);
 			}
-
+		//查找到对应节点再加入
 		return new PersistentVector(meta(), cnt, shift, doAssoc(shift, root, i, val), tail);
 		}
+	//如果位置超过 cnt，那么就走 cons，新插入节点
 	if(i == cnt)
 		return cons(val);
 	throw new IndexOutOfBoundsException();
 }
 
 private static Node doAssoc(int level, Node node, int i, Object val){
+	//递归插入，基本是 arrayFor的反过程。
+	//注意，这里 clone，为了拷贝路径
 	Node ret = new Node(node.edit,node.array.clone());
+	//终止点，level 等于 0
 	if(level == 0)
 		{
 		ret.array[i & 0x01f] = val;
 		}
 	else
 		{
+		//取 index 在这一层的 hash 值
 		int subidx = (i >>> level) & 0x01f;
+		//递归点
 		ret.array[subidx] = doAssoc(level - 5, (Node) node.array[subidx], i, val);
 		}
 	return ret;
@@ -168,6 +197,7 @@ public PersistentVector cons(Object val){
 	int i = cnt;
 	//room in tail?
 //	if(tail.length < 32)
+	//末尾节点还有空间，直接插入 tail
 	if(cnt - tailoff() < 32)
 		{
 		Object[] newTail = new Object[tail.length + 1];
@@ -176,22 +206,27 @@ public PersistentVector cons(Object val){
 		return new PersistentVector(meta(), cnt + 1, shift, root, newTail);
 		}
 	//full tail, push into tree
+	//tail 满了
 	Node newroot;
 	Node tailnode = new Node(root.edit,tail);
 	int newshift = shift;
 	//overflow root?
+	//root 没有位置了
 	if((cnt >>> 5) > (1 << shift))
 		{
 		newroot = new Node(root.edit);
 		newroot.array[0] = root;
 		newroot.array[1] = newPath(root.edit,shift, tailnode);
+		//递增层级
 		newshift += 5;
 		}
 	else
+		//否则，加入 root 
 		newroot = pushTail(shift, root, tailnode);
 	return new PersistentVector(meta(), cnt + 1, newshift, newroot, new Object[]{val});
 }
 
+//copy path
 private Node pushTail(int level, Node parent, Node tailnode){
 	//if parent is leaf, insert node,
 	// else does it map to an existing child? -> nodeToInsert = pushNode one more level
@@ -200,6 +235,7 @@ private Node pushTail(int level, Node parent, Node tailnode){
 	int subidx = ((cnt - 1) >>> level) & 0x01f;
 	Node ret = new Node(parent.edit, parent.array.clone());
 	Node nodeToInsert;
+	//第一层
 	if(level == 5)
 		{
 		nodeToInsert = tailnode;
@@ -218,7 +254,9 @@ private Node pushTail(int level, Node parent, Node tailnode){
 private static Node newPath(AtomicReference<Thread> edit,int level, Node node){
 	if(level == 0)
 		return node;
+	
 	Node ret = new Node(edit);
+	
 	ret.array[0] = newPath(edit, level - 5, node);
 	return ret;
 }

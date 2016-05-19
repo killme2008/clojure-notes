@@ -19,7 +19,9 @@ public abstract class APersistentVector extends AFn implements IPersistentVector
                                                                List,
                                                                RandomAccess, Comparable,
                                                                Serializable, IHashEq {
-int _hash = -1;
+	//java hash code
+	int _hash = -1;
+	//用于比较。
 int _hasheq = -1;
 
 public String toString(){
@@ -40,6 +42,8 @@ public ISeq rseq(){
 
 static boolean doEquals(IPersistentVector v, Object obj){
 	if(v == obj) return true;
+	
+	//如果 obj 是可迭代的，优先使用迭代器。
 	if(obj instanceof List || obj instanceof IPersistentVector)
 		{
 		Collection ma = (Collection) obj;
@@ -64,6 +68,7 @@ static boolean doEquals(IPersistentVector v, Object obj){
 //				return false;
 //			}
 //		}
+	//否则，转成 Seq ，再一一比较。
 	else
 		{
 		if(!(obj instanceof Sequential))
@@ -133,6 +138,7 @@ public boolean equiv(Object obj){
 	return doEquiv(this, obj);
 }
 
+//标准的 java list hashCode 算法。
 public int hashCode(){
 	if(_hash == -1)
 		{
@@ -153,6 +159,7 @@ public int hashCode(){
 	return _hash;
 }
 
+//使用 murmur3 hash算法
 public int hasheq(){
 	if(_hasheq == -1) {
 //	int hash = 1;
@@ -260,6 +267,7 @@ Iterator rangedIterator(final int start, final int end){
 	};
 }
 
+//O(1) 的开销
 public List subList(int fromIndex, int toIndex){
 	return (List) RT.subvec(this, fromIndex, toIndex);
 }
@@ -316,6 +324,7 @@ public boolean containsKey(Object key){
 	return i >= 0 && i < count();
 }
 
+//用于支持 (find [1 2 3] 0)
 public IMapEntry entryAt(Object key){
 	if(Util.isInteger(key))
 		{
@@ -326,6 +335,7 @@ public IMapEntry entryAt(Object key){
 	return null;
 }
 
+//也可以 assoc，只是 key 是 index
 public IPersistentVector assoc(Object key, Object val){
 	if(Util.isInteger(key))
 		{
@@ -335,6 +345,7 @@ public IPersistentVector assoc(Object key, Object val){
 	throw new IllegalArgumentException("Key must be integer");
 }
 
+//用于支持 get 
 public Object valAt(Object key, Object notFound){
 	if(Util.isInteger(key))
 		{
@@ -379,6 +390,7 @@ public boolean removeAll(Collection c){
 	throw new UnsupportedOperationException();
 }
 
+//O(n^2)
 public boolean containsAll(Collection c){
 	for(Object o : c)
 		{
@@ -410,10 +422,12 @@ public boolean contains(Object o){
 }
 
 public int length(){
+	//交给子类 count 方法。
 	return count();
 }
 
 public int compareTo(Object o){
+	//先比较大小，再一一比较元素
 	IPersistentVector v = (IPersistentVector) o;
 	if(count() < v.count())
 		return -1;
@@ -428,6 +442,7 @@ public int compareTo(Object o){
 	return 0;
 }
 
+    //用于支持 seq 协议
     static class Seq extends ASeq implements IndexedSeq, IReduce{
 	//todo - something more efficient
 	final IPersistentVector v;
@@ -449,6 +464,7 @@ public int compareTo(Object o){
 		return v.nth(i);
 	}
 
+	//类似原来 java string 的实现方式，对原有数据做一份 snapshot
 	public ISeq next(){
 		if(i + 1 < v.count())
 			return new APersistentVector.Seq(v, i + 1);
@@ -501,6 +517,7 @@ public static class RSeq extends ASeq implements IndexedSeq, Counted{
 		return v.nth(i);
 	}
 
+	//反方向迭代了
 	public ISeq next(){
 		if(i > 0)
 			return new APersistentVector.RSeq(v, i - 1);
